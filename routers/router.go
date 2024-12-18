@@ -11,4 +11,8 @@ func init() {
     
     // Route for CatController
     beego.Router("/cats", &controllers.CatController{})
+
+    // Route for handling votes (Up or Down)
+    // POST method to handle the vote
+    beego.Router("/cats/vote", &controllers.CatController{}, "post:Vote")
 }

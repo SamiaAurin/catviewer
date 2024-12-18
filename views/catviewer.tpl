@@ -76,7 +76,7 @@
         </div>
 
         <!-- Image -->
-        <div class="image-container">
+        <div class="image-container" id="image-container">
             <img src="https://cdn2.thecatapi.com/images/0XYvRd7oD.jpg" alt="Cat Image">
         </div>
 
@@ -84,12 +84,59 @@
         <div class="footer">
             <i>&#9825;</i> <!-- Heart -->
             <div>
-                <i>&#128077;</i> <!-- Thumbs Up -->
-                <i>&#128078;</i> <!-- Thumbs Down -->
+                <i id="thumbs-up" class="vote-icon" onclick="vote('up')">&#128077;</i> <!-- Thumbs Up -->
+                <i id="thumbs-down" class="vote-icon" onclick="vote('down')">&#128078;</i> <!-- Thumbs Down -->
             </div>
         </div>
 
         
     </div>
+
+
+    <!-- Add a script to handle the voting actions -->
+    <!-- At the end of the body -->
+    <script>
+        // Function to fetch random cat images
+        function fetchImages() {
+            // Fetch images from the API (replace YOUR_API_KEY with your actual key)
+            fetch('https://api.thecatapi.com/v1/images/search?limit=10', {
+                headers: {
+                    'x-api-key': 'YOUR_API_KEY'  // Replace with your actual API key
+                }
+            })
+            .then(response => response.json())
+            .then(images => {
+                const imageContainer = document.getElementById('image-container');
+                if (!imageContainer) {
+                    console.error('Image container not found');
+                    return;
+                }
+                imageContainer.innerHTML = '';  // Clear previous images
+
+                // Loop through images and display them
+                images.forEach(image => {
+                    const imgElement = document.createElement('img');
+                    imgElement.src = image.url;
+                    imgElement.alt = 'Cat Image';
+                    imgElement.classList.add('cat-image');
+                    imgElement.dataset.imageId = image.id;  // Store image ID for voting
+                    imageContainer.appendChild(imgElement);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching images:', error);
+                alert('Error fetching images.');
+            });
+        }
+
+        // Load images when the page loads
+        window.onload = function() {
+            fetchImages();  // Fetch images on page load
+        };
+    </script>
+
+
+
+
 </body>
 </html>
