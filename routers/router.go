@@ -2,17 +2,19 @@ package routers
 
 import (
 	"catviewer/controllers"
-	beego "github.com/beego/beego/v2/server/web"
+	"github.com/beego/beego/v2/server/web"
 )
 
 func init() {
-    // Main route
-    beego.Router("/", &controllers.MainController{})
-    
-    // Route for CatController
-    beego.Router("/cats", &controllers.CatController{})
+	// Route to show the vote page
+	web.Router("/", &controllers.CatController{}, "get:ShowVotePage")
 
-    // Route for handling votes (Up or Down)
-    // POST method to handle the vote
-    beego.Router("/cats/vote", &controllers.CatController{}, "post:Vote")
+	// Route to handle vote casting
+	web.Router("/cast_vote", &controllers.CatController{}, "post:CastVote")
+
+	// Route to fetch a random cat image
+	web.Router("/random_cat_image", &controllers.CatController{}, "get:FetchRandomImage")
+    
+    // Route to handle favoriting an image
+	web.Router("/add_to_favorites", &controllers.CatController{}, "post:AddToFavorites")
 }

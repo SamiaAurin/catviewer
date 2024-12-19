@@ -1,0 +1,14 @@
+Task Description
+Build the page below using Beego and Vanilla Javascript l
+Task Breakdown
+1. Visit h5ps://thecatapi.com and implement same feature previewed
+2. Use vanilla JS as you preferred for frontend interaction
+3. Use beego for controller, template rendering
+4. Use go channel for API calls (MUST)
+5. Utilize beego conﬁg for API key and other conﬁguration
+6. Write Unit tests for achieve 80% Code Coverage
+
+
+
+
+
