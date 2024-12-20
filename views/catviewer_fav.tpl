@@ -12,7 +12,7 @@
             <div class="header">
                 <a href="#" class="active">⬆️⬇️ Voting</a>
                 <a href="#" >🔍 Breeds</a>
-                <a href="#" onclick="showFavorites()">💖 Favs</a>
+                <a href="#" >💖 Favs</a>
             </div>
 
             <!-- Image Section -->

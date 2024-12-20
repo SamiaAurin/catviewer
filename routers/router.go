@@ -13,9 +13,9 @@ func init() {
 	web.Router("/cat/vote", &controllers.CatController{}, "post:CastVote")
 	
 	// Route to handle saving favorites
-	web.Router("/cat/favorite", &controllers.CatController{}, "post:SaveFavorite")
+	//web.Router("/cat/favorite", &controllers.CatController{}, "post:SaveFavorite")
 
-	// In router.go
-    web.Router("/cat/favorites", &controllers.CatController{}, "get:GetFavorites")
+	// Route to get saving favorites
+    //web.Router("/cat/favorites", &controllers.CatController{}, "get:GetFavorites")
 
 }
