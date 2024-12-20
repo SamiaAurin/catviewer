@@ -6,15 +6,16 @@ import (
 )
 
 func init() {
-	// Route to show the vote page
-	web.Router("/", &controllers.CatController{}, "get:ShowVotePage")
+	// Route to show the voting page
+	web.Router("/cat/vote", &controllers.CatController{}, "get:ShowVotePage")
+	
+	// Route to handle voting (upvote/downvote)
+	web.Router("/cat/vote", &controllers.CatController{}, "post:CastVote")
+	
+	// Route to handle saving favorites
+	web.Router("/cat/favorite", &controllers.CatController{}, "post:SaveFavorite")
 
-	// Route to handle vote casting
-	web.Router("/cast_vote", &controllers.CatController{}, "post:CastVote")
+	// In router.go
+    web.Router("/cat/favorites", &controllers.CatController{}, "get:GetFavorites")
 
-	// Route to fetch a random cat image
-	web.Router("/random_cat_image", &controllers.CatController{}, "get:FetchRandomImage")
-    
-    // Route to handle favoriting an image
-	web.Router("/add_to_favorites", &controllers.CatController{}, "post:AddToFavorites")
 }

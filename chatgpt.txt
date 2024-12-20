@@ -75,7 +75,7 @@ _______________
             <div class="header">
                 <a href="#" class="active">⬆️⬇️ Voting</a>
                 <a href="#" onclick="showBreeds()">🔍 Breeds</a>
-                <a href="#" onclick="showFavorites()"><i>&#9825;</i> Favs</a> <!-- Heart -->
+                <a href="#" when i click this favs header it will show me the favorites i have saved, it will also store it in local storage>💖 Favs</a></a> 
             </div>
 
             <!-- Image -->
