@@ -10,29 +10,36 @@
 <body>
     <div class="container">
         <div class="header">
-            <a href="#" id="voting-tab" class="active">⬆️⬇️ Voting</a>
+            <a href="http://localhost:8080/cat/vote" id="voting-tab" class="active">⬆️⬇️ Voting</a>
             <a href="#" id="breeds-tab">🔍 Breeds</a>
             <a href="#" id="favs-tab">💖 Favs</a>
         </div>
 
         <!-- Dynamic Content Sections -->
         <div id="voting-section" class="section active">
-            <div class="image-container" id="image-container">
+            <div class="image-container" id="voting-image-container">
                 <img id="cat-image" src="{{.ImageURL}}" alt="Cat Image" data-image-id="{{.ImageID}}">
             </div>
             <div class="footer">
-                <form method="POST" action="/cat/vote">
+                <form method="POST" action="">
                     <input type="hidden" name="image_id" value="{{.ImageID}}">
-                    <button type="submit" class="fav-icon">&#9825;</button>
+                    <button type="submit" name="fav" class="fav-icon">&#9825;</button>
                 </form>
                 <form method="POST" action="/cat/vote">
                     <input type="hidden" name="image_id" value="{{.ImageID}}">
-                    <button type="submit" name="vote" value="1" class="vote-icon">&#128077;</button>
-                    <button type="submit" name="vote" value="-1" class="vote-icon">&#128078;</button>
+                    <button type="submit" name="vote" value="1" class="vote-icon" id="upvote">&#128077;</button>
+                    <button type="submit" name="vote" value="-1" class="vote-icon" id="downvote">&#128078;</button>
+                    <button type="button" id="votedPicsBtn" class="vote-icon">Voted Pics</button>
                 </form>
             </div>
         </div>
+        <!-- Add a Voted Images Container -->
+        <div id="voted-images-section" class="voted-image-container" style="display: none;">
+            <h2>Voted Cat Images</h2>
+            <div id="voted-images-grid" class="voted-grid"></div>
+        </div> 
 
+        <!-- favs -->
         <div id="favs-section" class="section" style="display: none;">
             <div class="favorites-container" id="favorites-container">
                 <div class="view-icons">

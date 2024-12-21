@@ -47,6 +47,80 @@
     display: block;
 }
 
+/*Voted Images Showing CSS Starts*/
+
+.voted-image-container {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 1200px;
+    margin: 20px auto;
+    text-align: center;
+}
+
+/* Grid Container for the Voted Images */
+.voted-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 15px;
+    justify-items: center;
+    margin-top: 20px;
+    padding: 10px;
+}
+
+/* Style for individual items in the grid */
+.voted-item {
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.3s ease-in-out;
+    overflow: hidden;
+}
+
+.voted-item:hover {
+    transform: translateY(-5px);
+}
+
+/* Style for the image inside each voted item */
+.voted-item img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+/* Style for the voting label (Upvote / Downvote) */
+.voted-item p {
+    margin-top: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    text-transform: capitalize;
+}
+
+/* Upvote and Downvote labels */
+.upvote {
+    color: #4caf50; /* Green for upvotes */
+}
+
+.downvote {
+    color: #f44336; /* Red for downvotes */
+}
+
+/* Responsive Styles */
+@media screen and (max-width: 768px) {
+    .voted-images-section {
+        padding: 15px;
+    }
+
+    .voted-item {
+        padding: 12px;
+    }
+}
+
+/*Voted Images Showing CSS Ends*/
 /* Footer Icons */
 .footer 
 {

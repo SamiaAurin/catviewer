@@ -27,6 +27,8 @@ func (c *CatController) ShowVotePage() {
 	c.TplName = "catviewer.tpl"
 }
 
+///////////////////////////////// VOTE STARTS ////////////////////////////////////
+
 // fetchRandomImage uses a Go channel to fetch a random image from TheCatAPI.
 func fetchRandomImage() (string, string) {
 	// Create a channel to communicate between the Go routine and the main thread
@@ -132,9 +134,12 @@ func (c *CatController) CastVote() {
 
 	// Call TheCatAPI to cast the vote
 	go castVoteToAPI(imageID, voteValue)
-
+	// Return a JSON response
+	//c.Data["json"] = map[string]string{"image_id": imageID, "vote_value": voteValue}
+	//c.ServeJSON()
 	// Redirect to the same page after the vote
 	c.Redirect("/cat/vote", http.StatusFound)
+	
 }
 
 // castVoteToAPI sends the vote to TheCatAPI
@@ -164,11 +169,98 @@ func castVoteToAPI(imageID string, voteValue string) {
 	}
 
 	req.Header.Set("x-api-key", apiKey)
+	req.Header.Set("Content-Type", "application/json")
+
 	client := &http.Client{}
-	_, err = client.Do(req)
+	resp, err := client.Do(req)
 	if err != nil {
-		fmt.Println("Failed to send vote request:", err)
+		fmt.Printf("Failed to send vote request for image_id %s: %v\n", imageID, err)
+		return
+	}
+	defer resp.Body.Close()
+
+	// Log response for debugging
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Printf("Failed to read API response for image_id %s: %v\n", imageID, err)
+		return
+	}
+
+	if resp.StatusCode == http.StatusCreated {
+		fmt.Printf("Vote successfully posted for image_id %s with value %s. Response: %s\n", imageID, voteValue, string(body))
+	} else {
+		fmt.Printf("Failed to post vote for image_id %s. Status: %d, Response: %s\n", imageID, resp.StatusCode, string(body))
+	}
+	
+}
+
+// ShowVotedImages handles fetching and displaying voted images.
+func (c *CatController) ShowVotedImages() {
+	apiKey, err := web.AppConfig.String("catapi_key")
+	if err != nil {
+		c.Data["json"] = map[string]string{"error": "Failed to read API key"}
+		c.ServeJSON()
+		return
+	}
+
+	// Channel for results and errors
+	results := make(chan []map[string]interface{}, 1)
+	errors := make(chan error, 1)
+
+	// API URL to fetch voted images
+	apiUrl := "https://api.thecatapi.com/v1/votes?attach_image=1&limit=10&order=DESC"
+
+	// Goroutine to fetch data
+	go func(apiUrl string, apiKey string) {
+		req, err := http.NewRequest("GET", apiUrl, nil)
+		if err != nil {
+			errors <- err
+			return
+		}
+		req.Header.Set("x-api-key", apiKey)
+
+		client := &http.Client{}
+		resp, err := client.Do(req)
+		if err != nil {
+			errors <- err
+			return
+		}
+		defer resp.Body.Close()
+
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			errors <- err
+			return
+		}
+
+		var votes []map[string]interface{}
+		err = json.Unmarshal(body, &votes)
+		if err != nil {
+			errors <- err
+			return
+		}
+
+		// Send the result to the results channel
+		results <- votes
+	}(apiUrl, apiKey)
+
+	// Wait for either a result or an error
+	select {
+	case res := <-results:
+		// Respond with the fetched votes
+		c.Data["json"] = res
+		c.ServeJSON()
+	case err := <-errors:
+		// Handle the error
+		c.Data["json"] = map[string]string{"error": err.Error()}
+		c.ServeJSON()
 	}
 }
 
-/////////////////////////////////
+///////////////////////////////// VOTE ENDS ////////////////////////////////////
+
+///////////////////////////////// BREEDS STARTS ////////////////////////////////////
+///////////////////////////////// BREEDS ENDS ////////////////////////////////////
+
+///////////////////////////////// FAVS STARTS ////////////////////////////////////
+///////////////////////////////// FAVS ENDS ////////////////////////////////////
