@@ -121,7 +121,7 @@
 }
 
 /*Voted Images Showing CSS Ends*/
-/* Footer Icons */
+/* Footer CSS STARTS */
 .footer 
 {
     display: flex;
@@ -140,101 +140,9 @@
 {
     color: red;
 }
+/* Footer CSS ENDS*/
 
-/* General container styling */
-.favorites-container 
-{
-    padding: 1rem;
-    background-color: #f9f9f9;
-}
-
-/* Flex container for the icons */
-.view-icons 
-{
-    display: flex;
-    justify-content: flex-start;
-    gap: 1rem;
-    padding: 1rem 0;
-}
-
-/* Styling for the icon containers */
-.grid-view, .bar-view 
-{
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.5rem;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
-}
-
-.grid-view:hover, .bar-view:hover 
-{
-    background-color: #e0e0e0;
-}
-
-/* Icons styling */
-i {
-font-size: 1.5rem; /* Adjust the size of icons */
-}
-
-/* Grid view layout for the favorites */
-.favorites-grid {
-display: grid;
-grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-gap: 1rem;
-padding: 1rem;
-background-color: #ffffff;
-transition: all 0.3s ease;
-}
-
-/* Responsive grid for smaller screens */
-@media (max-width: 768px) {
-.favorites-grid {
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); /* More responsive grid */
-}
-}
-
-/* Bar (scrolling) view layout */
-.favorites-grid.scroll-view {
-display: flex;
-flex-direction: column; /* Make it a column layout */
-overflow-y: auto; /* Enable vertical scroll */
-gap: 1rem;
-padding: 1rem;
-background-color: #ffffff;
-height: 400px; /* Set a fixed height for scrolling */
-}
-
-/* Make the images in scroll view behave responsively */
-.favorites-grid.scroll-view img {
-width: 100%;
-max-width: 200px;
-object-fit: cover;
-height: 150px; /* Adjust according to your needs */
-}
-
-/* Hover state for scroll images */
-.favorites-grid.scroll-view img:hover {
-transform: scale(1.05);
-}
-
-
-
-/* Active icon color change */
-.grid-view.active, .bar-view.active {
-background-color: #ff6841;
-color: #ffffff;
-}
-
-/* Button focus states */
-[role="button"]:focus {
-outline: 2px solid #ff6841;
-}
-
-/* Breeds section */
-/* Section Container */
+/* Breeds section CSS STARTS */
 #breeds {
 display: flex;
 justify-content: center;
@@ -384,3 +292,90 @@ text-decoration: underline;
 }
 }
 
+/* Favorites CSS STARTS*/
+/* Container for the favorites section */
+.favorites-container {
+    display: flex;
+    padding: 1rem;
+    background-color: #f9f9f9;
+    flex-direction: column;
+}
+
+/* Flex container for the icons */
+.view-icons {
+    display: flex;
+    justify-content: flex-start;
+    gap: 1rem;
+    padding: 1rem 0;
+}
+
+/* Styling for the icon containers (Grid and Bar views) */
+.grid-view, .bar-view {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+/* Hover state for icons */
+.grid-view:hover, .bar-view:hover {
+    background-color: #e0e0e0;
+}
+
+/* Icons styling */
+i {
+    font-size: 1.5rem; /* Adjust the size of icons */
+}
+
+/* Grid view layout for the favorites */
+.favorite-images-grid.grid-view {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* Make the images responsive in grid view */
+.favorite-images-grid.grid-view img {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+/* Bar (scrolling) view layout */
+.favorite-images-grid.scroll-view {
+    display: flex;
+    flex-direction: column; /* Make it a column layout */
+    overflow-y: auto; /* Enable vertical scroll */
+    gap: 1rem;
+    padding: 1rem;
+    background-color: #ffffff;
+    height: 400px; /* Set a fixed height for scrolling */
+}
+
+/* Make the images in scroll view behave responsively */
+.favorite-images-grid.scroll-view img {
+    width: 100%;
+    max-width: 200px;
+    object-fit: cover;
+    height: 150px; /* Adjust according to your needs */
+}
+
+/* Hover state for scroll images */
+.favorite-images-grid.scroll-view img:hover {
+    transform: scale(1.05);
+}
+
+/* Active icon color change */
+.grid-view.active, .bar-view.active {
+    background-color: #ff6841; /* Orange color */
+    color: #ffffff;
+}
+
+/* Button focus states */
+[role="button"]:focus {
+    outline: 2px solid #ff6841;
+}

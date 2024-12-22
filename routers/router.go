@@ -13,10 +13,10 @@ func init() {
 	web.Router("/cat/vote", &controllers.CatController{}, "post:CastVote")
 	web.Router("/cat/voted_pics", &controllers.CatController{}, "get:ShowVotedImages")
 
-	// Route to handle saving favorites
-	//web.Router("/cat/favorite", &controllers.CatController{}, "post:SaveFavorite")
+	// Route to handle saving and showin favorites
+    web.Router("/cat/favorite", &controllers.CatController{}, "post:FavoriteImage")
+	web.Router("/cat/fav_pics", &controllers.CatController{}, "get:ShowFavoriteImages")
 
-	// Route to get saving favorites
-    //web.Router("/cat/favorites", &controllers.CatController{}, "get:GetFavorites")
+
 
 }

@@ -21,16 +21,21 @@
                 <img id="cat-image" src="{{.ImageURL}}" alt="Cat Image" data-image-id="{{.ImageID}}">
             </div>
             <div class="footer">
-                <form method="POST" action="">
+
+                <!-- Favorite Button (Heart Icon) -->
+                <form method="POST" action="/cat/favorite">
                     <input type="hidden" name="image_id" value="{{.ImageID}}">
-                    <button type="submit" name="fav" class="fav-icon">&#9825;</button>
+                    <button type="submit" name="fav" class="fav-icon">💖</button> 
                 </form>
+
+                <!-- Voting Buttons -->
                 <form method="POST" action="/cat/vote">
                     <input type="hidden" name="image_id" value="{{.ImageID}}">
                     <button type="submit" name="vote" value="1" class="vote-icon" id="upvote">&#128077;</button>
                     <button type="submit" name="vote" value="-1" class="vote-icon" id="downvote">&#128078;</button>
                     <button type="button" id="votedPicsBtn" class="vote-icon">Voted Pics</button>
                 </form>
+
             </div>
         </div>
         <!-- Add a Voted Images Container -->
@@ -43,22 +48,19 @@
         <div id="favs-section" class="section" style="display: none;">
             <div class="favorites-container" id="favorites-container">
                 <div class="view-icons">
-                    <div class="grid-view">
+                    <div class="grid-view active">
                         <i class="fa-solid fa-th"></i>
                     </div>
                     <div class="bar-view">
                         <i class="fa-solid fa-bars"></i>
                     </div>
                 </div>
-                <div class="favorites-grid">
-                    {{range .Favorites}}
-                    <div class="favorite-item">
-                        <img src="{{.Image.URL}}" alt="Favorite Cat" />
-                    </div>
-                    {{end}}
+                <div id="favorite-images-grid" class="favorite-images-grid">
+                    <!-- The images will be shown here -->
                 </div>
             </div>
         </div>
+        
         
 
         <div id="breeds-section" class="section" style="display: none;">
