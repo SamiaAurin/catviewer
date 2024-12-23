@@ -91,155 +91,165 @@ function vote(action) {
             fetchRandomImage();
 }
 
-// Array to hold the breed list
-let breeds = [];
-let selectedBreed = null;
-
-        
-// Function to display breed details
-function displayBreed(breed) {
-            const imageContainer = document.getElementById('image-container');
-            const footer = document.querySelector('.footer');
-            footer.style.display = 'none'; // Hide the footer
-
-            // Ensure breed.image is defined before accessing breed.image.url
-            const breedImageUrl = breed.image ? breed.image.url : 'default-image-url'; // Use a fallback image URL if image is not available
-
-            imageContainer.innerHTML = `
-                <section id="breed-details">
-                    <div class="breed-container">
-                        <div class="breed-select">
-                            <img src="${breedImageUrl}" alt="${breed.name}">
-                            <h1>${breed.name}</h1>
-                            <span>(${breed.origin})</span>
-                            <span>${breed.id}</span>
-                            <p>${breed.description}</p>
-                            <a href="${breed.wikipedia_url}" target="_blank">Wikipedia</a>
-                        </div>
-                    </div>
-                </section>
-            `;
+/*
+document.addEventListener('DOMContentLoaded', function () {
+    const dropdown = document.getElementById('search-breed-dropdown');
+    const breedName = document.getElementById('breed-name');
+    const breedOrigin = document.getElementById('breed-origin');
+    const breedId = document.getElementById('breed-id');
+    const breedDescription = document.getElementById('breed-description');
+    const wikiLink = document.getElementById('wiki-link');
+    const breedImagesContainer = document.getElementById('slider-images');
+    const sliderDotsContainer = document.querySelector('.slider-dots');
+    
+    if (!dropdown || !breedName || !breedOrigin || !breedDescription || !wikiLink || !breedImagesContainer || !sliderDotsContainer) {
+        console.error("One or more elements are missing in the DOM.");
+        return;
     }
 
-// Function to display selected breed details
-function selectBreed(breed) {
-            selectedBreed = breed; // Set the selected breed
-            displayBreed(breed); // Display the breed's details
-            const breedsList = document.getElementById('breeds-list');
-            //breedsList.innerHTML = ''; // Clear the breed list after selection
-        }
-        // Function to display the breed list and search bar
-function displayBreeds(breedsList) {
-            const imageContainer = document.getElementById('image-container');
-            const footer = document.querySelector('.footer');
-            footer.style.display = 'none'; // Hide the footer when displaying breeds
-            
 
-            imageContainer.innerHTML = `
-                <section id="breeds">
-                    <div class="breed-container">
-                        <div class="breed-select">
-                            <span class="breed-text">Search for a breed</span>
-                            <div class="value-container">
-                                <input type="text" id="search-breed-input" placeholder="Search breeds" class="search-breed-input">
-                                <button id="close-button" class="close-button">×</button>
-                            </div>
-                        </div>
-                        <ul id="breeds-list" class="breed-list"></ul>
-                        <div class="breed-details" id="breed-details">
-                            
-                        </div>
-                    </div>
-                </section>
-            `;
-            
-            const breedsListElement = document.getElementById('breeds-list');
-            breedsList.forEach(breed => {
-                const li = document.createElement('li');
-                li.textContent = breed.name;
-                li.onclick = () => selectBreed(breed); // Handle breed selection
-                breedsListElement.appendChild(li);
-            });
-        }
-
-// Function to set up the search bar functionality
-function setupSearchBar() {
-            const searchInput = document.getElementById('search-breed-input');
-            const breedsListElement = document.getElementById('breeds-list');
-            const closeButton = document.getElementById('close-button');
-
-            // Show the breed list when the search input is clicked
-            searchInput.addEventListener('focus', () => {
-                breedsListElement.innerHTML = ''; // Clear any previous list
-                breedsListElement.style.display = 'block'; // Show the breed list
-
-                breeds.forEach(breed => {
-                    const li = document.createElement('li');
-                    li.textContent = breed.name;
-                    li.onclick = () => selectBreed(breed); // Select the breed when clicked
-                    breedsListElement.appendChild(li);
-                });
-            });
-
-            // Filter the list based on search input
-            searchInput.addEventListener('input', () => {
-                const query = searchInput.value.toLowerCase();
-                const filteredBreeds = breeds.filter(breed =>
-                    breed.name.toLowerCase().includes(query)
-                );
-                breedsListElement.innerHTML = ''; // Clear the current list
-                filteredBreeds.forEach(breed => {
-                    const li = document.createElement('li');
-                    li.textContent = breed.name;
-                    li.onclick = () => selectBreed(breed); // Select the breed when clicked
-                    breedsListElement.appendChild(li);
-                });
-            });
-
-            // Add functionality to the close button
-            closeButton.addEventListener('click', () => {
-                searchInput.value = ''; // Clear the search input
-                breedsListElement.style.display = 'none'; // Hide the breed list
-            });
-
-            // Hide the breed list when clicking outside the input or list
-            document.addEventListener('click', (e) => {
-                if (!searchInput.contains(e.target) && !closeButton.contains(e.target)) {
-                    breedsListElement.style.display = 'none'; // Hide the list
+    document.getElementById("breeds-tab").addEventListener("click", function () {
+        console.log("Breeds tab clicked!");
+    
+        fetch("/cat/fetch_breeds")
+            .then(response => response.json())
+            .then(breeds => {
+                console.log("Fetched breeds:", breeds);
+    
+                if (breeds && breeds.length > 0) {
+                    // Display the first breed details
+                    const firstBreed = breeds[0]; // Get the first breed
+                    populateBreedsDropdown(breeds); // Populate the dropdown with breed details
+                    displayBreedDetails(firstBreed); // Display details of the first breed
+    
+                    // Fetch images for the first breed dynamically
+                    fetch(`/cat/fetch_breeds?id=${firstBreed.id}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.BreedImages) {
+                                displayBreedImages(data.BreedImages); // Display images for the first breed
+                            } else {
+                                console.error("No images found for the first breed.");
+                            }
+                        })
+                        .catch(error => console.error("Error fetching images for the first breed:", error));
+                } else {
+                    console.error("No breeds found.");
                 }
-            });
-        }
-
-
-// Function to fetch breeds from The Cat API
-function fetchBreeds() {
-            fetch('https://api.thecatapi.com/v1/breeds', {
-                headers: { 'x-api-key': 'YOUR_API_KEY' } // Replace 'YOUR_API_KEY' with your actual API key
+    
+                // Show the breeds section and hide other sections
+                document.getElementById("voting-section").style.display = "none";
+                document.getElementById("voted-images-section").style.display = "none";
+                document.getElementById("favs-section").style.display = "none";
+                document.getElementById("breeds-section").style.display = "block";
             })
-            .then(response => {
-                if (!response.ok) {
-                    console.error('Error fetching breeds:', response.statusText);
-                    alert('Error fetching breeds.');
-                }
-                return response.json(); // Parse the JSON response
-            })
-            .then(data => {
-                breeds = data; // Store the list of breeds
-                displayBreeds(breeds); // Display the breed list
-                setupSearchBar(); // Set up search functionality for breeds
-            })
-            .catch(error => {
-                console.error('Error fetching breeds:', error);
-                alert('Error fetching breeds.');
-            });
-        }
+            .catch(error => console.error("Error fetching breeds:", error));
+    });
+    
+    // Helper function to display breed images
+    function displayBreedImages(images) {
+        // Clear previous images and dots
+        breedImagesContainer.innerHTML = "";
+        sliderDotsContainer.innerHTML = "";
 
+        // Display breed images and create dots dynamically
+        images.forEach((image, index) => {
+            const imgElement = document.createElement('img');
+            imgElement.src = image.url;
+            imgElement.alt = "Breed Image";
+            imgElement.classList.add('slider-img');
+            breedImagesContainer.appendChild(imgElement);
+
+            const dotElement = document.createElement('span');
+            dotElement.classList.add('dot');
+            dotElement.addEventListener('click', () => showSlide(index));
+            sliderDotsContainer.appendChild(dotElement);
+        });
+
+        // Initialize slider to show the first image
+        showSlide(0);
+    }
+            
+    // Function to handle selecting a breed from the dropdown
+    dropdown.addEventListener('change', function () {
         
-// Show the breed details when clicking on the "Breeds" link
-function showBreeds() {
-            fetchBreeds(); // Fetch and display the list of breeds when the "Breeds" link is clicked
-        }
+        const selectedBreedId = dropdown.value;
 
-         
+        fetch(`/cat/fetch_breeds?id=${selectedBreedId}`)
+            .then(response => response.json())
+            .then(data => {
+                // Check if response contains breed details and images
+                const breed = data.BreedDetails;
+                const breedImages = data.BreedImages;
+    
+                if (breed && breedImages) {
+                    // Display breed details
+                    breedName.textContent = breed.name;
+                    breedOrigin.textContent = breed.origin ? `(${breed.origin})` : "";
+                    breedId.textContent = breed.id ? `${breed.id}` : "";
+                    breedDescription.textContent = breed.description || "No description available.";
+                    wikiLink.href = breed.wikipedia_url || "#";
+    
+                    // Clear previous images and dots
+                    breedImagesContainer.innerHTML = "";
+                    sliderDotsContainer.innerHTML = "";
+    
+                    // Display breed images and create dots dynamically
+                    breedImages.forEach((image, index) => {
+                        const imgElement = document.createElement('img');
+                        imgElement.src = image.url;
+                        imgElement.alt = "Breed Image";
+                        imgElement.classList.add('slider-img');
+                        breedImagesContainer.appendChild(imgElement);
+    
+                        const dotElement = document.createElement('span');
+                        dotElement.classList.add('dot');
+                        dotElement.addEventListener('click', () => showSlide(index));
+                        sliderDotsContainer.appendChild(dotElement);
+                    });
+    
+                    // Initialize slider to show the first image
+                    showSlide(0);
+                } else {
+                    console.error('Breed or images data is missing.');
+                }
+            })
+            .catch(error => console.error('Error fetching breed:', error));
+    });
+    
 
-window.onload = fetchRandomImage;
+    function showSlide(index) {
+        const slides = document.querySelectorAll('.slider-img');
+        const dots = document.querySelectorAll('.dot');
+        
+        // Hide all images and deactivate all dots
+        slides.forEach((slide, idx) => {
+            slide.style.display = idx === index ? 'block' : 'none';
+        });
+        dots.forEach((dot, idx) => {
+            dot.classList.toggle('active', idx === index);
+        });
+    }
+
+    function populateBreedsDropdown(breeds) {
+        // Clear the existing options in the dropdown
+        dropdown.innerHTML = "<option value=''>Select a breed</option>"; // Optional placeholder for dropdown
+        breeds.forEach(breed => {
+            const option = document.createElement("option");
+            option.value = breed.id;
+            option.textContent = breed.name;
+            dropdown.appendChild(option);
+        });
+    }
+
+    function displayBreedDetails(breed) {
+        //breedImage.src = breed.image?.url || "placeholder.jpg";
+        breedName.textContent = breed.name || "Unknown Breed";
+        breedOrigin.textContent = breed.origin ? `(${breed.origin})` : "";
+        breedId.textContent = breed.id ? `${breed.id}` : "";
+        breedDescription.textContent = breed.description || "No description available.";
+        wikiLink.href = breed.wikipedia_url || "#";
+    }
+});
+
+*/

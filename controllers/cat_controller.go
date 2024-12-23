@@ -287,69 +287,6 @@ type Breed struct {
 	WikipediaURL string `json:"wikipedia_url"`
 }
 
-func (c *CatController) GetBreeds() {
-	// Get API key from the configuration
-	apiKey, err := web.AppConfig.String("catapi_key")
-	if err != nil || apiKey == "" {
-		c.Data["error"] = "API key not found"
-		c.TplName = "error.tpl" // Render an error page
-		return
-	}
-
-	apiURL := "https://api.thecatapi.com/v1/breeds"
-
-	// Create channels for data and errors
-	dataChannel := make(chan []Breed)
-	errorChannel := make(chan error)
-
-	
-	// Fetch all breeds details concurrently
-	go func() {
-		client := &http.Client{Timeout: 10 * time.Second}
-		req, _ := http.NewRequest("GET", apiURL, nil)
-		req.Header.Add("x-api-key", apiKey)
-
-		resp, err := client.Do(req)
-		if err != nil {
-			errorChannel <- err
-			return
-		}
-		defer resp.Body.Close()
-
-		// Check for a successful response (status code 200)
-		if resp.StatusCode != http.StatusOK {
-			errorChannel <- fmt.Errorf("API request failed with status: %s", resp.Status)
-			return
-		}
-
-		body, _ := ioutil.ReadAll(resp.Body)
-		var breeds []Breed
-		err = json.Unmarshal(body, &breeds)
-		if err != nil {
-			errorChannel <- err
-			return
-		}
-
-		dataChannel <- breeds
-	}()
-
-	// Use select to wait for data or an error
-	select {
-	case breeds := <-dataChannel:
-		// Pass breed data to the template
-		c.Data["Breeds"] = breeds
-		if len(breeds) > 0 {
-			c.Data["DefaultBreed"] = breeds[0] // Automatically display the first breed
-		}
-		c.TplName = "catviewer.tpl"
-
-	case err := <-errorChannel:
-		// Handle errors and render the error page
-		c.Data["error"] = "Failed to fetch breeds: " + err.Error()
-		c.TplName = "error.tpl"
-	}
-}
-
 
 func (c *CatController) FetchBreeds() {
     // Get API key from the configuration
@@ -506,13 +443,6 @@ func fetchBreedImages(breedId, apiKey string, imageChannel chan interface{}, err
 
     imageChannel <- breedImages
 }
-
-
-
-
-
-
-
 
 ///////////////////////////////// BREEDS ENDS /////////////////////////////////////
 

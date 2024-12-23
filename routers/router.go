@@ -14,7 +14,7 @@ func init() {
 	web.Router("/cat/voted_pics", &controllers.CatController{}, "get:ShowVotedImages")
 
 	// Route to handle breeds section
-	web.Router("/cat/breeds", &controllers.CatController{}, "get:GetBreeds")
+	//web.Router("/cat/breeds", &controllers.CatController{}, "get:GetBreeds")
 	web.Router("/cat/fetch_breeds", &controllers.CatController{}, "get:FetchBreeds")
     //web.Router("/cat/fetch_breeds_imgs", &controllers.CatController{}, "get:FetchBreedsImgs")
 	

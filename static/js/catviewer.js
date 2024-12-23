@@ -34,112 +34,61 @@ document.getElementById("votedPicsBtn").addEventListener("click", function () {
 });
 // Fetch and display voted images  ENDS //
 
-////////////////////// JS for BREEDS ////////////////////////////
+////////////////////// JS for BREEDS //////////////////////////////
+
 document.addEventListener('DOMContentLoaded', function () {
-    const dropdown = document.getElementById('search-breed-dropdown');
-    const breedName = document.getElementById('breed-name');
-    const breedOrigin = document.getElementById('breed-origin');
-    const breedId = document.getElementById('breed-id');
-    const breedDescription = document.getElementById('breed-description');
-    const wikiLink = document.getElementById('wiki-link');
-    const breedImagesContainer = document.getElementById('slider-images');
-    const sliderDotsContainer = document.querySelector('.slider-dots');
-    
-    if (!dropdown || !breedName || !breedOrigin || !breedDescription || !wikiLink || !breedImagesContainer || !sliderDotsContainer) {
+    const elements = {
+        dropdown: document.getElementById('search-breed-dropdown'),
+        breedName: document.getElementById('breed-name'),
+        breedOrigin: document.getElementById('breed-origin'),
+        breedId: document.getElementById('breed-id'),
+        breedDescription: document.getElementById('breed-description'),
+        wikiLink: document.getElementById('wiki-link'),
+        breedImagesContainer: document.getElementById('slider-images'),
+        sliderDotsContainer: document.querySelector('.slider-dots'),
+        sections: {
+            breeds: document.getElementById("breeds-section"),
+            voting: document.getElementById("voting-section"),
+            votedImages: document.getElementById("voted-images-section"),
+            favorites: document.getElementById("favs-section")
+        }
+    };
+
+    if (Object.values(elements).includes(null)) {
         console.error("One or more elements are missing in the DOM.");
         return;
     }
 
+    const { dropdown, breedName, breedOrigin, breedId, breedDescription, wikiLink, breedImagesContainer, sliderDotsContainer, sections } = elements;
 
-    document.getElementById("breeds-tab").addEventListener("click", function () {
-        console.log("Breeds tab clicked!");
-
-        fetch("/cat/fetch_breeds")
-        .then(response => response.json())
-        .then(breeds => {
-            console.log("Fetched breeds:", breeds);
-
-            if (breeds && breeds.length > 0) {
-                populateBreedsDropdown(breeds);
-                displayBreedDetails(breeds[0]); // Display details of the first breed
-            } else {
-                console.error("No breeds found.");
-            }
-
-            // Show the breeds section and hide other sections
-            document.getElementById("voting-section").style.display = "none";
-            document.getElementById("voted-images-section").style.display = "none";
-            document.getElementById("favs-section").style.display = "none";
-            document.getElementById("breeds-section").style.display = "block";
-        })
-        .catch(error => console.error("Error fetching breeds:", error));
-    });
-    
-        
-    // Function to handle selecting a breed from the dropdown
-    dropdown.addEventListener('change', function () {
-        
-        const selectedBreedId = dropdown.value;
-        
-        fetch(`/cat/fetch_breeds?id=${selectedBreedId}`)
-            .then(response => response.json())
-            .then(data => {
-                // Check if response contains breed details and images
-                const breed = data.BreedDetails;
-                const breedImages = data.BreedImages;
-    
-                if (breed && breedImages) {
-                    // Display breed details
-                    breedName.textContent = breed.name;
-                    breedOrigin.textContent = breed.origin ? `(${breed.origin})` : "";
-                    breedId.textContent = breed.id ? `${breed.id}` : "";
-                    breedDescription.textContent = breed.description || "No description available.";
-                    wikiLink.href = breed.wikipedia_url || "#";
-    
-                    // Clear previous images and dots
-                    breedImagesContainer.innerHTML = "";
-                    sliderDotsContainer.innerHTML = "";
-    
-                    // Display breed images and create dots dynamically
-                    breedImages.forEach((image, index) => {
-                        const imgElement = document.createElement('img');
-                        imgElement.src = image.url;
-                        imgElement.alt = "Breed Image";
-                        imgElement.classList.add('slider-img');
-                        breedImagesContainer.appendChild(imgElement);
-    
-                        const dotElement = document.createElement('span');
-                        dotElement.classList.add('dot');
-                        dotElement.addEventListener('click', () => showSlide(index));
-                        sliderDotsContainer.appendChild(dotElement);
-                    });
-    
-                    // Initialize slider to show the first image
-                    showSlide(0);
-                } else {
-                    console.error('Breed or images data is missing.');
-                }
-            })
-            .catch(error => console.error('Error fetching breed:', error));
-    });
-    
-
-    function showSlide(index) {
-        const slides = document.querySelectorAll('.slider-img');
-        const dots = document.querySelectorAll('.dot');
-        
-        // Hide all images and deactivate all dots
-        slides.forEach((slide, idx) => {
-            slide.style.display = idx === index ? 'block' : 'none';
-        });
-        dots.forEach((dot, idx) => {
-            dot.classList.toggle('active', idx === index);
+    // Switch section visibility
+    function showSection(activeSection) {
+        Object.values(sections).forEach(section => {
+            section.style.display = section === activeSection ? 'block' : 'none';
         });
     }
 
+    // Fetch and display breed data
+    function fetchAndDisplayBreedData(breedId) {
+        fetch(`/cat/fetch_breeds?id=${breedId}`)
+            .then(response => response.json())
+            .then(data => {
+                const breed = data.BreedDetails;
+                const breedImages = data.BreedImages;
+
+                if (breed && breedImages) {
+                    displayBreedDetails(breed);
+                    displayBreedImages(breedImages);
+                } else {
+                    console.error("Breed or images data is missing.");
+                }
+            })
+            .catch(error => console.error("Error fetching breed data:", error));
+    }
+
+    // Populate dropdown with breeds
     function populateBreedsDropdown(breeds) {
-        // Clear the existing options in the dropdown
-        dropdown.innerHTML = "<option value=''>Select a breed</option>"; // Optional placeholder for dropdown
+        dropdown.innerHTML = "<option value=''>Select a breed</option>";
         breeds.forEach(breed => {
             const option = document.createElement("option");
             option.value = breed.id;
@@ -148,17 +97,82 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // Display breed details
     function displayBreedDetails(breed) {
-        //breedImage.src = breed.image?.url || "placeholder.jpg";
         breedName.textContent = breed.name || "Unknown Breed";
         breedOrigin.textContent = breed.origin ? `(${breed.origin})` : "";
-        breedId.textContent = breed.id ? `${breed.id}` : "";
+        breedId.textContent = breed.id || "";
         breedDescription.textContent = breed.description || "No description available.";
         wikiLink.href = breed.wikipedia_url || "#";
     }
+
+    // Display breed images
+    function displayBreedImages(images) {
+        breedImagesContainer.innerHTML = "";
+        sliderDotsContainer.innerHTML = "";
+
+        images.forEach((image, index) => {
+            const imgElement = document.createElement('img');
+            imgElement.src = image.url;
+            imgElement.alt = "Breed Image";
+            imgElement.classList.add('slider-img');
+            breedImagesContainer.appendChild(imgElement);
+
+            const dotElement = document.createElement('span');
+            dotElement.classList.add('dot');
+            dotElement.addEventListener('click', () => showSlide(index));
+            sliderDotsContainer.appendChild(dotElement);
+        });
+
+        showSlide(0); // Show the first image
+    }
+
+    // Show the slider image and activate the corresponding dot
+    function showSlide(index) {
+        const slides = document.querySelectorAll('.slider-img');
+        const dots = document.querySelectorAll('.dot');
+
+        slides.forEach((slide, idx) => {
+            slide.style.display = idx === index ? 'block' : 'none';
+        });
+
+        dots.forEach((dot, idx) => {
+            dot.classList.toggle('active', idx === index);
+        });
+    }
+
+    // Event listener for breeds tab click
+    document.getElementById("breeds-tab").addEventListener("click", function () {
+        console.log("Breeds tab clicked!");
+
+        fetch("/cat/fetch_breeds")
+            .then(response => response.json())
+            .then(breeds => {
+                console.log("Fetched breeds:", breeds);
+
+                if (breeds && breeds.length > 0) {
+                    const firstBreed = breeds[0];
+                    populateBreedsDropdown(breeds);
+                    displayBreedDetails(firstBreed);
+
+                    fetchAndDisplayBreedData(firstBreed.id);
+                } else {
+                    console.error("No breeds found.");
+                }
+
+                showSection(sections.breeds);
+            })
+            .catch(error => console.error("Error fetching breeds:", error));
+    });
+
+    // Event listener for dropdown change
+    dropdown.addEventListener('change', function () {
+        const selectedBreedId = dropdown.value;
+        if (selectedBreedId) {
+            fetchAndDisplayBreedData(selectedBreedId);
+        }
+    });
 });
-
-
 
 /////////////////// JS for FAVS /////////////////
 
