@@ -345,30 +345,6 @@ i {
     border-radius: 5px;
 }
 
-/* Bar (scrolling) view layout */
-.favorite-images-grid.scroll-view {
-    display: flex;
-    flex-direction: column; /* Make it a column layout */
-    overflow-y: auto; /* Enable vertical scroll */
-    gap: 1rem;
-    padding: 1rem;
-    background-color: #ffffff;
-    height: 400px; /* Set a fixed height for scrolling */
-}
-
-/* Make the images in scroll view behave responsively */
-.favorite-images-grid.scroll-view img {
-    width: 100%;
-    max-width: 200px;
-    object-fit: cover;
-    height: 150px; /* Adjust according to your needs */
-}
-
-/* Hover state for scroll images */
-.favorite-images-grid.scroll-view img:hover {
-    transform: scale(1.05);
-}
-
 /* Active icon color change */
 .grid-view.active, .bar-view.active {
     background-color: #ff6841; /* Orange color */
@@ -378,4 +354,27 @@ i {
 /* Button focus states */
 [role="button"]:focus {
     outline: 2px solid #ff6841;
+}
+
+/* Bar (scrolling) view layout */
+.favorite-images-grid.bar-view {
+    display: flex;
+    flex-direction: column; 
+    overflow-y: auto; 
+    gap: 1rem;
+    padding: 1rem;
+    background-color: #ffffff;
+}
+
+/* Make the images in scroll view behave responsively */
+.favorite-images-grid.bar-view img {
+    width: 100%;
+    max-width: 200px;
+    object-fit: cover;
+    height: 150px; /* Adjust according to your needs */
+}
+
+/* Hover state for scroll images */
+.favorite-images-grid.bar-view img:hover {
+    transform: scale(1.05);
 }
