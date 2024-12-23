@@ -13,7 +13,12 @@ func init() {
 	web.Router("/cat/vote", &controllers.CatController{}, "post:CastVote")
 	web.Router("/cat/voted_pics", &controllers.CatController{}, "get:ShowVotedImages")
 
-	// Route to handle saving and showin favorites
+	// Route to handle breeds section
+	web.Router("/cat/breeds", &controllers.CatController{}, "get:GetBreeds")
+	web.Router("/cat/fetch_breeds", &controllers.CatController{}, "get:FetchBreeds")
+    //web.Router("/cat/fetch_breeds_imgs", &controllers.CatController{}, "get:FetchBreedsImgs")
+	
+	// Route to handle saving and showing favorites
     web.Router("/cat/favorite", &controllers.CatController{}, "post:FavoriteImage")
 	web.Router("/cat/fav_pics", &controllers.CatController{}, "get:ShowFavoriteImages")
 

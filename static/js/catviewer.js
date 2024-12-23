@@ -34,6 +34,132 @@ document.getElementById("votedPicsBtn").addEventListener("click", function () {
 });
 // Fetch and display voted images  ENDS //
 
+////////////////////// JS for BREEDS ////////////////////////////
+document.addEventListener('DOMContentLoaded', function () {
+    const dropdown = document.getElementById('search-breed-dropdown');
+    const breedName = document.getElementById('breed-name');
+    const breedOrigin = document.getElementById('breed-origin');
+    const breedId = document.getElementById('breed-id');
+    const breedDescription = document.getElementById('breed-description');
+    const wikiLink = document.getElementById('wiki-link');
+    const breedImagesContainer = document.getElementById('slider-images');
+    const sliderDotsContainer = document.querySelector('.slider-dots');
+    
+    if (!dropdown || !breedName || !breedOrigin || !breedDescription || !wikiLink || !breedImagesContainer || !sliderDotsContainer) {
+        console.error("One or more elements are missing in the DOM.");
+        return;
+    }
+
+
+    document.getElementById("breeds-tab").addEventListener("click", function () {
+        console.log("Breeds tab clicked!");
+
+        fetch("/cat/fetch_breeds")
+        .then(response => response.json())
+        .then(breeds => {
+            console.log("Fetched breeds:", breeds);
+
+            if (breeds && breeds.length > 0) {
+                populateBreedsDropdown(breeds);
+                displayBreedDetails(breeds[0]); // Display details of the first breed
+            } else {
+                console.error("No breeds found.");
+            }
+
+            // Show the breeds section and hide other sections
+            document.getElementById("voting-section").style.display = "none";
+            document.getElementById("voted-images-section").style.display = "none";
+            document.getElementById("favs-section").style.display = "none";
+            document.getElementById("breeds-section").style.display = "block";
+        })
+        .catch(error => console.error("Error fetching breeds:", error));
+    });
+    
+        
+    // Function to handle selecting a breed from the dropdown
+    dropdown.addEventListener('change', function () {
+        
+        const selectedBreedId = dropdown.value;
+        
+        fetch(`/cat/fetch_breeds?id=${selectedBreedId}`)
+            .then(response => response.json())
+            .then(data => {
+                // Check if response contains breed details and images
+                const breed = data.BreedDetails;
+                const breedImages = data.BreedImages;
+    
+                if (breed && breedImages) {
+                    // Display breed details
+                    breedName.textContent = breed.name;
+                    breedOrigin.textContent = breed.origin ? `(${breed.origin})` : "";
+                    breedId.textContent = breed.id ? `${breed.id}` : "";
+                    breedDescription.textContent = breed.description || "No description available.";
+                    wikiLink.href = breed.wikipedia_url || "#";
+    
+                    // Clear previous images and dots
+                    breedImagesContainer.innerHTML = "";
+                    sliderDotsContainer.innerHTML = "";
+    
+                    // Display breed images and create dots dynamically
+                    breedImages.forEach((image, index) => {
+                        const imgElement = document.createElement('img');
+                        imgElement.src = image.url;
+                        imgElement.alt = "Breed Image";
+                        imgElement.classList.add('slider-img');
+                        breedImagesContainer.appendChild(imgElement);
+    
+                        const dotElement = document.createElement('span');
+                        dotElement.classList.add('dot');
+                        dotElement.addEventListener('click', () => showSlide(index));
+                        sliderDotsContainer.appendChild(dotElement);
+                    });
+    
+                    // Initialize slider to show the first image
+                    showSlide(0);
+                } else {
+                    console.error('Breed or images data is missing.');
+                }
+            })
+            .catch(error => console.error('Error fetching breed:', error));
+    });
+    
+
+    function showSlide(index) {
+        const slides = document.querySelectorAll('.slider-img');
+        const dots = document.querySelectorAll('.dot');
+        
+        // Hide all images and deactivate all dots
+        slides.forEach((slide, idx) => {
+            slide.style.display = idx === index ? 'block' : 'none';
+        });
+        dots.forEach((dot, idx) => {
+            dot.classList.toggle('active', idx === index);
+        });
+    }
+
+    function populateBreedsDropdown(breeds) {
+        // Clear the existing options in the dropdown
+        dropdown.innerHTML = "<option value=''>Select a breed</option>"; // Optional placeholder for dropdown
+        breeds.forEach(breed => {
+            const option = document.createElement("option");
+            option.value = breed.id;
+            option.textContent = breed.name;
+            dropdown.appendChild(option);
+        });
+    }
+
+    function displayBreedDetails(breed) {
+        //breedImage.src = breed.image?.url || "placeholder.jpg";
+        breedName.textContent = breed.name || "Unknown Breed";
+        breedOrigin.textContent = breed.origin ? `(${breed.origin})` : "";
+        breedId.textContent = breed.id ? `${breed.id}` : "";
+        breedDescription.textContent = breed.description || "No description available.";
+        wikiLink.href = breed.wikipedia_url || "#";
+    }
+});
+
+
+
 /////////////////// JS for FAVS /////////////////
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -48,8 +174,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Hide other sections and show the favorites section
                 document.getElementById("voting-section").style.display = "none";
-                document.getElementById("voted-images-section").style.display = "none"; // Hide the voted images section
-                document.getElementById("favs-section").style.display = "block"; // Show the favorites section
+                document.getElementById("voted-images-section").style.display = "none"; 
+                document.getElementById("breeds-section").style.display = "none";
+                document.getElementById("favs-section").style.display = "block"; 
 
                 const grid = document.getElementById("favorite-images-grid");
                 grid.innerHTML = ""; // Clear previous images

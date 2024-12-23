@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
+	
 	
 
 	"github.com/beego/beego/v2/server/web"
@@ -272,7 +274,247 @@ func (c *CatController) ShowVotedImages() {
 ///////////////////////////////// VOTE ENDS ////////////////////////////////////
 
 ///////////////////////////////// BREEDS STARTS ////////////////////////////////////
-///////////////////////////////// BREEDS ENDS ////////////////////////////////////
+
+// Define a Breed struct to parse the API response
+type Breed struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Origin      string `json:"origin"`
+	Description string `json:"description"`
+	Image       struct {
+		URL string `json:"url"`
+	} `json:"image"`
+	WikipediaURL string `json:"wikipedia_url"`
+}
+
+func (c *CatController) GetBreeds() {
+	// Get API key from the configuration
+	apiKey, err := web.AppConfig.String("catapi_key")
+	if err != nil || apiKey == "" {
+		c.Data["error"] = "API key not found"
+		c.TplName = "error.tpl" // Render an error page
+		return
+	}
+
+	apiURL := "https://api.thecatapi.com/v1/breeds"
+
+	// Create channels for data and errors
+	dataChannel := make(chan []Breed)
+	errorChannel := make(chan error)
+
+	
+	// Fetch all breeds details concurrently
+	go func() {
+		client := &http.Client{Timeout: 10 * time.Second}
+		req, _ := http.NewRequest("GET", apiURL, nil)
+		req.Header.Add("x-api-key", apiKey)
+
+		resp, err := client.Do(req)
+		if err != nil {
+			errorChannel <- err
+			return
+		}
+		defer resp.Body.Close()
+
+		// Check for a successful response (status code 200)
+		if resp.StatusCode != http.StatusOK {
+			errorChannel <- fmt.Errorf("API request failed with status: %s", resp.Status)
+			return
+		}
+
+		body, _ := ioutil.ReadAll(resp.Body)
+		var breeds []Breed
+		err = json.Unmarshal(body, &breeds)
+		if err != nil {
+			errorChannel <- err
+			return
+		}
+
+		dataChannel <- breeds
+	}()
+
+	// Use select to wait for data or an error
+	select {
+	case breeds := <-dataChannel:
+		// Pass breed data to the template
+		c.Data["Breeds"] = breeds
+		if len(breeds) > 0 {
+			c.Data["DefaultBreed"] = breeds[0] // Automatically display the first breed
+		}
+		c.TplName = "catviewer.tpl"
+
+	case err := <-errorChannel:
+		// Handle errors and render the error page
+		c.Data["error"] = "Failed to fetch breeds: " + err.Error()
+		c.TplName = "error.tpl"
+	}
+}
+
+
+func (c *CatController) FetchBreeds() {
+    // Get API key from the configuration
+    apiKey, err := web.AppConfig.String("catapi_key")
+    if err != nil || apiKey == "" {
+        c.Data["json"] = map[string]string{"error": "API key not found"}
+        c.ServeJSON()
+        return
+    }
+
+    // Extract breed ID from query parameters
+    breedId := c.GetString("id")
+    if breedId == "" {
+        // If no breed ID is provided, fetch all breeds
+        fetchAllBreeds(apiKey, c)
+    } else {
+        // If breed ID is provided, fetch specific breed details and images
+        fetchBreedWithImages(breedId, apiKey, c)
+    }
+}
+
+// Fetch all breeds
+func fetchAllBreeds(apiKey string, c *CatController) {
+    dataChannel := make(chan interface{})
+    errorChannel := make(chan error)
+
+    // Fetch all breeds details concurrently
+    go fetchAllBreedDetails(apiKey, dataChannel, errorChannel)
+
+    select {
+    case breeds := <-dataChannel:
+        c.Data["json"] = breeds
+		//log.Println("Fetched breeds:", breeds)
+    case err := <-errorChannel:
+        c.Data["json"] = map[string]string{"error": err.Error()}
+        c.ServeJSON()
+        return
+    }
+
+    c.ServeJSON()
+}
+
+// Fetch details for all breeds
+func fetchAllBreedDetails(apiKey string, dataChannel chan interface{}, errorChannel chan error) {
+    apiURL := "https://api.thecatapi.com/v1/breeds"
+    client := &http.Client{Timeout: 10 * time.Second}
+    req, _ := http.NewRequest("GET", apiURL, nil)
+    req.Header.Add("x-api-key", apiKey)
+
+    resp, err := client.Do(req)
+    if err != nil {
+        errorChannel <- err
+        return
+    }
+    defer resp.Body.Close()
+
+    body, _ := ioutil.ReadAll(resp.Body)
+    var breeds []Breed
+    err = json.Unmarshal(body, &breeds)
+    if err != nil {
+        errorChannel <- err
+        return
+    }
+
+    dataChannel <- breeds
+}
+
+// Fetch specific breed with images
+func fetchBreedWithImages(breedId, apiKey string, c *CatController) {
+    dataChannel := make(chan interface{})
+    imageChannel := make(chan interface{})
+    errorChannel := make(chan error)
+
+    // Fetch breed details concurrently
+    go fetchBreedDetails(breedId, apiKey, dataChannel, errorChannel)
+    // Fetch breed images concurrently
+    go fetchBreedImages(breedId, apiKey, imageChannel, errorChannel)
+
+    var breedDetails interface{}
+    var breedImages interface{}
+    var err error
+
+    select {
+    case breedDetails = <-dataChannel:
+    case err = <-errorChannel:
+        c.Data["json"] = map[string]string{"error": err.Error()}
+        c.ServeJSON()
+        return
+    }
+
+    select {
+    case breedImages = <-imageChannel:
+    case err = <-errorChannel:
+        c.Data["json"] = map[string]string{"error": err.Error()}
+        c.ServeJSON()
+        return
+    }
+
+    c.Data["json"] = map[string]interface{}{
+        "BreedDetails": breedDetails,
+        "BreedImages":  breedImages,
+    }
+    c.ServeJSON()
+}
+
+// Fetch breed details
+func fetchBreedDetails(breedId, apiKey string, dataChannel chan interface{}, errorChannel chan error) {
+    apiURL := fmt.Sprintf("https://api.thecatapi.com/v1/breeds/%s", breedId)
+    client := &http.Client{Timeout: 10 * time.Second}
+    req, _ := http.NewRequest("GET", apiURL, nil)
+    req.Header.Add("x-api-key", apiKey)
+
+    resp, err := client.Do(req)
+    if err != nil {
+        errorChannel <- err
+        return
+    }
+    defer resp.Body.Close()
+
+    body, _ := ioutil.ReadAll(resp.Body)
+    var breedDetails Breed
+    err = json.Unmarshal(body, &breedDetails)
+    if err != nil {
+        errorChannel <- err
+        return
+    }
+
+    dataChannel <- breedDetails
+}
+
+// Fetch breed images
+func fetchBreedImages(breedId, apiKey string, imageChannel chan interface{}, errorChannel chan error) {
+    apiURL := fmt.Sprintf("https://api.thecatapi.com/v1/images/search?limit=10&breed_ids=%s", breedId)
+    client := &http.Client{Timeout: 10 * time.Second}
+    req, _ := http.NewRequest("GET", apiURL, nil)
+    req.Header.Add("x-api-key", apiKey)
+
+    resp, err := client.Do(req)
+    if err != nil {
+        errorChannel <- err
+        return
+    }
+    defer resp.Body.Close()
+
+    body, _ := ioutil.ReadAll(resp.Body)
+    var breedImages []struct {
+        URL string `json:"url"`
+    }
+    err = json.Unmarshal(body, &breedImages)
+    if err != nil {
+        errorChannel <- err
+        return
+    }
+
+    imageChannel <- breedImages
+}
+
+
+
+
+
+
+
+
+///////////////////////////////// BREEDS ENDS /////////////////////////////////////
 
 ///////////////////////////////// FAVS STARTS ////////////////////////////////////
 // FavoriteImage handles the favoriting action for a cat image

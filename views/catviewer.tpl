@@ -44,6 +44,43 @@
             <div id="voted-images-grid" class="voted-grid"></div>
         </div> 
 
+        <!-- breeds --> 
+        <div id="breeds-section" class="section" style="display: none;">
+            <div class="breed-container">
+                <div class="breed-select">
+                    <span class="breed-text">Search for a breed</span>
+                    <div class="value-container">
+                        <select id="search-breed-dropdown" class="search-breed-dropdown">
+                            {{range .Breeds}}
+                            <option value="{{.ID}}">{{.Name}}</option>
+                            {{end}}
+                        </select>
+                    </div>
+                </div>
+                <div class="breed-details">
+                    <div class="breed-image-slider">
+                        <div id="breed-image-placeholder" class="breed-image-placeholder">
+                            <div id="slider-images" class="slider-images">
+                                {{range .BreedImages}}
+                                <img src="{{.URL}}" alt="Breed Image" class="slider-img">
+                                {{end}}
+                            </div>
+                            <div class="slider-dots">
+                                {{range .BreedImages}}
+                                <span class="dot"></span>
+                                {{end}}
+                            </div>
+                        </div>
+                    </div>
+                    <h1 id="breed-name">{{.DefaultBreed.Name}}</h1>
+                    <span id="breed-origin">({{if .DefaultBreed.Origin}}({{.DefaultBreed.Origin}}){{end}})</span>
+                    <span id="breed-id">{{if .DefaultBreed.ID}}{{.DefaultBreed.ID}}{{else}}No ID available{{end}}</span>
+                    <p id="breed-description">{{.DefaultBreed.Description}}</p>
+                    <a id="wiki-link" href="{{.DefaultBreed.WikipediaURL}}" target="_blank">WIKIPEDIA</a>
+                </div>
+            </div>
+        </div>
+        
         <!-- favs -->
         <div id="favs-section" class="section" style="display: none;">
             <div class="favorites-container" id="favorites-container">
@@ -63,10 +100,6 @@
         
         
 
-        <div id="breeds-section" class="section" style="display: none;">
-            <!-- You can add breeds content here as needed -->
-            <h2>Breeds Section</h2>
-        </div>
         
         
         
