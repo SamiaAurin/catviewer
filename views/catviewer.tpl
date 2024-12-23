@@ -47,8 +47,7 @@
         <!-- breeds --> 
         <div id="breeds-section" class="section" style="display: none;">
             <div class="breed-container">
-                <div class="breed-select">
-                    <span class="breed-text">Search for a breed</span>
+                <div class="breed-select">  
                     <div class="value-container">
                         <select id="search-breed-dropdown" class="search-breed-dropdown">
                             {{range .Breeds}}

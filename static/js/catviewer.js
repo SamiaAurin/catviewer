@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function () {
         breedId: document.getElementById('breed-id'),
         breedDescription: document.getElementById('breed-description'),
         wikiLink: document.getElementById('wiki-link'),
-        breedImagesContainer: document.getElementById('slider-images'),
+        breedImagesContainer: document.querySelector('.slider-images'),
         sliderDotsContainer: document.querySelector('.slider-dots'),
         sections: {
             breeds: document.getElementById("breeds-section"),
@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Populate dropdown with breeds
     function populateBreedsDropdown(breeds) {
-        dropdown.innerHTML = "<option value=''>Select a breed</option>";
+        dropdown.innerHTML = `<option value="" disabled selected>Please select</option>`;
         breeds.forEach(breed => {
             const option = document.createElement("option");
             option.value = breed.id;
@@ -120,36 +120,64 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const dotElement = document.createElement('span');
             dotElement.classList.add('dot');
-            dotElement.addEventListener('click', () => showSlide(index));
+            dotElement.addEventListener('click', () => {
+                stopSlideShow();
+                showSlide(index);
+                startSlideShow();
+            });
             sliderDotsContainer.appendChild(dotElement);
         });
 
-        showSlide(0); // Show the first image
+        // Reinitialize the slider after adding new slides
+        initializeSlider();
     }
 
-    // Show the slider image and activate the corresponding dot
+    let currentIndex = 0;
+    let slideInterval;
+
+    // Show the slide at the given index
     function showSlide(index) {
         const slides = document.querySelectorAll('.slider-img');
         const dots = document.querySelectorAll('.dot');
 
-        slides.forEach((slide, idx) => {
-            slide.style.display = idx === index ? 'block' : 'none';
-        });
+        if (slides.length === 0) return;
 
+        currentIndex = index < 0 ? slides.length - 1 : index % slides.length;
+
+        const offset = -currentIndex * 100; // Calculate the translateX value
+        breedImagesContainer.style.transform = `translateX(${offset}%)`;
+        breedImagesContainer.style.transition = 'transform 0.5s ease-in-out'; // Smooth transition
+
+        // Update active dot
         dots.forEach((dot, idx) => {
-            dot.classList.toggle('active', idx === index);
+            dot.classList.toggle('active', idx === currentIndex);
         });
+    }
+
+    // Start automatic sliding
+    function startSlideShow() {
+        slideInterval = setInterval(() => {
+            showSlide(currentIndex + 1);
+        }, 5000); // Change slide every 3 seconds
+    }
+
+    // Stop the automatic sliding
+    function stopSlideShow() {
+        clearInterval(slideInterval);
+    }
+
+    // Initialize the slider
+    function initializeSlider() {
+        currentIndex = 0;
+        showSlide(0);
+        startSlideShow();
     }
 
     // Event listener for breeds tab click
     document.getElementById("breeds-tab").addEventListener("click", function () {
-        console.log("Breeds tab clicked!");
-
         fetch("/cat/fetch_breeds")
             .then(response => response.json())
             .then(breeds => {
-                console.log("Fetched breeds:", breeds);
-
                 if (breeds && breeds.length > 0) {
                     const firstBreed = breeds[0];
                     populateBreedsDropdown(breeds);
@@ -172,14 +200,52 @@ document.addEventListener('DOMContentLoaded', function () {
             fetchAndDisplayBreedData(selectedBreedId);
         }
     });
+
 });
+
 
 /////////////////// JS for FAVS /////////////////
 
 document.addEventListener('DOMContentLoaded', function () {
+
     // Fetch favorite images when the favorites tab is clicked
     document.getElementById("favs-tab").addEventListener("click", function () {
         console.log("Favorites tab clicked!");
+        
+        // Add event listeners to toggle between grid and bar view
+        const gridView = document.querySelector(".grid-view");
+        const barView = document.querySelector(".bar-view");
+        const grid = document.getElementById("favorite-images-grid");
+
+        if (gridView && barView && grid) {
+            // Ensure grid view is applied by default when the Favorites tab is clicked
+            grid.classList.remove("bar-view");
+            grid.classList.add("grid-view"); // Default to grid view
+
+            // Set the grid-view button as active by default
+            gridView.classList.add("active");
+            barView.classList.remove("active");
+
+            gridView.addEventListener("click", function () {
+                grid.classList.remove("bar-view");
+                grid.classList.add("grid-view");
+
+                // Update active state on icons
+                gridView.classList.add("active");
+                barView.classList.remove("active");
+            });
+
+            barView.addEventListener("click", function () {
+                grid.classList.remove("grid-view");
+                grid.classList.add("bar-view");
+
+                // Update active state on icons
+                barView.classList.add("active");
+                gridView.classList.remove("active");
+            });
+        } else {
+            console.error("Grid or Bar view icons not found!");
+        }
 
         fetch('/cat/fav_pics') // Fetch favorite images
             .then(response => response.json())
@@ -192,7 +258,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 document.getElementById("breeds-section").style.display = "none";
                 document.getElementById("favs-section").style.display = "block"; 
 
-                const grid = document.getElementById("favorite-images-grid");
                 grid.innerHTML = ""; // Clear previous images
 
                 data.forEach(fav => {
@@ -208,7 +273,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     // Optionally, add information about the favorite, e.g., date or ID
                     const info = document.createElement("p");
-                    info.textContent = `Favorited on: ${new Date(fav.created_at).toLocaleDateString()}`;
+                    info.textContent = `Added on: ${new Date(fav.created_at).toLocaleDateString()}`;
                     container.appendChild(info);
 
                     // Add the container to the grid
@@ -217,34 +282,6 @@ document.addEventListener('DOMContentLoaded', function () {
             })
             .catch(error => console.error("Error fetching favorite images:", error));
     });
-
-    // Add event listeners to toggle between grid and bar view
-    const gridView = document.querySelector(".grid-view");
-    const barView = document.querySelector(".bar-view");
-
-    if (gridView && barView) {
-        gridView.addEventListener("click", function () {
-            const grid = document.getElementById("favorite-images-grid");
-            grid.classList.remove("bar-view");
-            grid.classList.add("grid-view");
-
-            // Update active state on icons
-            gridView.classList.add("active");
-            barView.classList.remove("active");
-        });
-
-        barView.addEventListener("click", function () {
-            const grid = document.getElementById("favorite-images-grid");
-            grid.classList.remove("grid-view");
-            grid.classList.add("bar-view");
-
-            // Update active state on icons
-            barView.classList.add("active");
-            gridView.classList.remove("active");
-        });
-    } else {
-        console.error("Grid or Bar view icons not found!");
-    }
 });
 
 
