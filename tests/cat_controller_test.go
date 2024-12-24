@@ -1,4 +1,4 @@
-package controllers_test
+package tests
 
 import (
 	"bytes"
@@ -6,46 +6,99 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	
 	"catviewer/controllers"
-	"github.com/beego/beego/v2/server/web/context" // Correct import for context
+	"github.com/beego/beego/v2/server/web"
+	"github.com/beego/beego/v2/server/web/context"
 )
 
+/////////////// TESTS FOR VOTES STARTS ///////////////////
+
+func TestShowVotePage(t *testing.T) {
+	r, _ := http.NewRequest("GET", "/cat/vote", nil)
+	w := httptest.NewRecorder()
+	
+	ctx := context.NewContext()
+	ctx.Reset(w, r)
+	
+	controller := &controllers.CatController{}
+	controller.Init(ctx, "CatController", "CatController", nil)
+	
+	controller.ShowVotePage()
+	
+	if w.Code != http.StatusOK {
+		t.Errorf("ShowVotePage returned wrong status code: got %v want %v", w.Code, http.StatusOK)
+	}
+}
+
 func TestCastVote(t *testing.T) {
-	// Mock the vote request
-	voteRequest := map[string]interface{}{
-		"vote":     "1", // Upvote
-		"image_id": "mock-image-id",
+	voteData := map[string]string{
+		"image_id": "test123",
+		"vote":     "1",
 	}
-
-	reqBody, err := json.Marshal(voteRequest)
-	if err != nil {
-		t.Fatalf("Error marshaling request body: %v", err)
+	jsonData, _ := json.Marshal(voteData)
+	
+	r, _ := http.NewRequest("POST", "/cat/vote", bytes.NewBuffer(jsonData))
+	w := httptest.NewRecorder()
+	
+	ctx := context.NewContext()
+	ctx.Reset(w, r)
+	
+	controller := &controllers.CatController{}
+	controller.Init(ctx, "CatController", "CatController", nil)
+	
+	controller.Ctx.Input.SetParam("image_id", "test123")
+	controller.Ctx.Input.SetParam("vote", "1")
+	
+	controller.CastVote()
+	
+	if w.Code != http.StatusFound {
+		t.Errorf("CastVote returned wrong status code: got %v want %v", w.Code, http.StatusFound)
 	}
+}
 
-	// Create the HTTP request
-	req, err := http.NewRequest("POST", "/cat/vote", bytes.NewBuffer(reqBody))
-	if err != nil {
-		t.Fatalf("Error creating request: %v", err)
+func TestShowVotedImages(t *testing.T) {
+	// Mock response data
+	mockResponse := []map[string]interface{}{
+		{
+			"id": 123,
+			"image_id": "test123",
+			"value": 1,
+		},
 	}
-
-	// Use httptest to record the response
-	rr := httptest.NewRecorder()
-
-	// Create the Beego web context with the HTTP request and response writer
-	ctx := &context.Context{
-		ResponseWriter: rr, // ResponseWriter from httptest (correct type)
-		Request:        req, // The request created above
+	
+	jsonResponse, _ := json.Marshal(mockResponse)
+	
+	// Create test server
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write(jsonResponse)
+	}))
+	defer ts.Close()
+	
+	r, _ := http.NewRequest("GET", "/cat/voted_pics", nil)
+	w := httptest.NewRecorder()
+	
+	ctx := context.NewContext()
+	ctx.Reset(w, r)
+	
+	controller := &controllers.CatController{}
+	controller.Init(ctx, "CatController", "CatController", nil)
+	
+	controller.ShowVotedImages()
+	
+	if w.Code != http.StatusOK {
+		t.Errorf("ShowVotedImages returned wrong status code: got %v want %v", w.Code, http.StatusOK)
 	}
+}
 
-	// Create the controller instance and mock the context
-	c := &controllers.CatController{}
-	c.Ctx = ctx
+/////////////// TESTS FOR VOTES ENDS ///////////////////
 
-	// Call the CastVote function (the function you're testing)
-	c.CastVote()
+/////////////// TESTS FOR BREEDS STARTS ///////////////////
 
-	// Check the response status code
-	if status := rr.Code; status != http.StatusFound {
-		t.Errorf("Expected status %d, but got %d", http.StatusFound, status)
-	}
+/////////////// TESTS FOR BREEDS ENDS /////////////////////
+
+func TestMain(m *testing.M) {
+	web.BConfig.RunMode = web.DEV
+	m.Run()
 }
