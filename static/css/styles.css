@@ -29,7 +29,7 @@
 
 .header a.active 
 {
-    color: red;
+    color: rgb(255 104 65);
 }
 
 /* Image Styling */
@@ -57,6 +57,8 @@
     max-width: 1200px;
     margin: 20px auto;
     text-align: center;
+    overflow-y: auto;
+    height: 500px;
 }
 
 /* Grid Container for the Voted Images */
@@ -109,7 +111,7 @@
     color: #f44336; /* Red for downvotes */
 }
 
-/* Responsive Styles */
+/* Responsive Styles for VOTES */
 @media screen and (max-width: 768px) {
     .voted-images-section {
         padding: 15px;
@@ -128,18 +130,59 @@
     justify-content: space-between;
     padding: 10px 15px;
 }
-
 .footer i 
 {
     font-size: 1.2em;
-    color: #666;
+
     cursor: pointer;
 }
-
 .footer i:hover 
 {
     color: red;
 }
+/* General button styling */
+.icon-button {
+    align-items: center;
+    justify-content: center;
+    padding: 10px 15px;
+    font-size: 16px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.icon-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.icon-button:focus {
+    outline: 2px solid #ffbc41; /* Lighter orange outline */
+}
+
+.icon-button:active {
+    transform: scale(0.95);
+}
+
+.voted-pics-btn {
+    font-size: 16px;
+    padding: 10px 20px;
+    border-radius: 20px; 
+    color: #FFFFFF;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #f44336
+}
+/* icons' sizes */
+.fa-heart,
+.fa-thumbs-up,
+.fa-thumbs-down,
+.fa-images {
+    font-size: 20px; 
+}
+
 /* Footer CSS ENDS*/
 
 /* Breeds section CSS STARTS */
@@ -155,6 +198,7 @@
     flex-direction: column;
     background-color: white;
     padding: 20px;
+    margin: 20px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 
@@ -219,6 +263,7 @@ text-align: left;
     max-width: 100%;
     height: auto;
     border-radius: 8px;
+    object-fit: contain;
 }
 
 #breed-name {
@@ -259,56 +304,27 @@ text-align: left;
     margin-top: 10px; 
     display: inline-block;
 }
-
-
-/* Responsive Styles */
-@media screen and (max-width: 768px) {
-#breeds {
-    padding: 10px;
-}
-
-.breed-container {
-    padding: 15px;
-}
-
-.search-breed-input {
-    padding: 8px;
-    font-size: 14px;
-}
-
-.breed-name {
-    font-size: 22px;
-}
-}
 .breed-image-slider {
-    position: relative;
     max-width: 100%;
     height: auto;
 }
-
 .breed-image-placeholder {
-    position: relative;
     overflow: hidden;
 }
-
 .slider-images {
     display: flex;
     transition: transform 0.5s ease-in-out;
 }
-
 .slider-img {
     width: 100%;
     height: auto;
-    object-fit: cover;
+    object-fit: contain;
 }
 
 .slider-dots {
-    position: absolute;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
     display: flex;
     justify-content: center;
+    margin: 2px;
 }
 
 .dot {
@@ -324,26 +340,55 @@ text-align: left;
 .dot.active {
     background-color: #717171;
 }
+
+/* Responsive Styles for BREEDS*/
+@media screen and (max-width: 768px) {
+    #breeds {
+        padding: 10px;
+    }
+    
+    .breed-container {
+        padding: 15px;
+    }
+    
+    .search-breed-input {
+        padding: 8px;
+        font-size: 14px;
+    }
+    
+    .breed-name {
+        font-size: 22px;
+    }
+}
+    
 /* Breeds CSS ENDS */
 
 /* Favorites CSS STARTS */
-/* Container for the favorites section */
+
 .favorites-container {
     display: flex;
     padding: 1rem;
     background-color: #f9f9f9;
     flex-direction: column;
+    overflow: hidden;
 }
 
-/* Flex container for the icons */
 .view-icons {
     display: flex;
     justify-content: flex-start;
     gap: 1rem;
     padding: 1rem 0;
 }
+.grid-view.active, .bar-view.active {
+    background-color: #ff6841; 
+    color: #ffffff;
+}
 
-/* Styling for the icon containers (Grid and Bar views) */
+/* Button focus states */
+[role="button"]:focus {
+    outline: 2px solid #ff6841;
+}
+
 .grid-view, .bar-view {
     cursor: pointer;
     display: flex;
@@ -354,21 +399,28 @@ text-align: left;
     transition: background-color 0.3s ease;
 }
 
-/* Hover state for icons */
 .grid-view:hover, .bar-view:hover {
     background-color: #e0e0e0;
 }
 
-/* Icons styling */
+
 i {
-    font-size: 1.5rem; /* Adjust the size of icons */
+    font-size: 1.5rem; 
 }
 
-/* Grid view layout for the favorites */
+.favorite-item p{
+    font-size: 12px !important;
+    font-weight: 600;
+    color:#f44336;
+}
+
 .favorite-images-grid.grid-view {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
+    overflow-y: auto;
+    height: 500px;
+    background-color: #d5b3a369;
 }
 
 /* Make the images responsive in grid view */
@@ -379,26 +431,16 @@ i {
     border-radius: 5px;
 }
 
-/* Active icon color change */
-.grid-view.active, .bar-view.active {
-    background-color: #ff6841; /* Orange color */
-    color: #ffffff;
-}
-
-/* Button focus states */
-[role="button"]:focus {
-    outline: 2px solid #ff6841;
-}
-
 /* Bar (scrolling) view layout */
 .favorite-images-grid.bar-view {
+    box-sizing: border-box;
+    height: 500px;
     display: flex;
-    flex-direction: column; 
-    overflow-y: auto; 
+    flex-wrap: wrap;
+    overflow-y: auto;
     gap: 1rem;
     padding: 1rem;
-    background-color: #ffffff;
-    
+    background-color: #d5b3a369;
 }
 
 /* Make the images in scroll view behave responsively */
@@ -413,6 +455,3 @@ i {
     transform: scale(1.05);
 }
 
-.favorite-item p{
-    font-size: 15px;
-}

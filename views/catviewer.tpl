@@ -25,22 +25,33 @@
                 <!-- Favorite Button (Heart Icon) -->
                 <form method="POST" action="/cat/favorite">
                     <input type="hidden" name="image_id" value="{{.ImageID}}">
-                    <button type="submit" name="fav" class="fav-icon">💖</button> 
+                    <button type="submit" name="fav" class="icon-button fav-icon">
+                        <i class="fa-regular fa-heart"></i>
+                    </button>
                 </form>
 
                 <!-- Voting Buttons -->
                 <form method="POST" action="/cat/vote">
                     <input type="hidden" name="image_id" value="{{.ImageID}}">
-                    <button type="submit" name="vote" value="1" class="vote-icon" id="upvote">&#128077;</button>
-                    <button type="submit" name="vote" value="-1" class="vote-icon" id="downvote">&#128078;</button>
-                    <button type="button" id="votedPicsBtn" class="vote-icon">Voted Pics</button>
+                    <!-- Upvote button -->
+                    <button type="submit" name="vote" value="1" class="icon-button vote-icon" id="upvote">
+                        <i class="fa-regular fa-thumbs-up"></i>
+                    </button>
+                    <!-- Downvote button -->
+                    <button type="submit" name="vote" value="-1" class="icon-button vote-icon" id="downvote">
+                        <i class="fa-regular fa-thumbs-down"></i>
+                    </button>
+                    <!-- Voted Pics button -->
+                    <button type="button" id="votedPicsBtn" class="icon-button voted-pics-btn">
+                        <i class="fa-solid fa-images"></i> Voted Pics
+                    </button>
                 </form>
 
             </div>
         </div>
         <!-- Add a Voted Images Container -->
         <div id="voted-images-section" class="voted-image-container" style="display: none;">
-            <h2>Voted Cat Images</h2>
+            <h2>🐱 Voted Cat Images 🐱</h2>
             <div id="voted-images-grid" class="voted-grid"></div>
         </div> 
 

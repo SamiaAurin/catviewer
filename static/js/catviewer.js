@@ -1,4 +1,28 @@
-// Fetch and display voted images  STARTS //
+// To toggle the active class dynamically between tabs when clicked
+document.addEventListener("DOMContentLoaded", function () {
+    
+    const tabs = document.querySelectorAll("#voting-tab, #breeds-tab, #favs-tab");
+
+    tabs.forEach(tab => {
+        tab.addEventListener("click", function (event) {
+        
+            if (this.id === "voting-tab") {
+                // Let it navigate to "/cat/vote"
+                return; // Skip toggling for navigation
+            } else {
+                event.preventDefault(); 
+            }
+
+            tabs.forEach(t => t.classList.remove("active"));
+
+            this.classList.add("active");
+        });
+    });
+});
+
+/////////////////// JS for VOTES STARTS //////////////////////////////////
+
+// Fetch and display voted images   //
 document.getElementById("votedPicsBtn").addEventListener("click", function () {
     fetch('/cat/voted_pics') // Fetch voted images and values
         .then(response => response.json())
@@ -8,7 +32,7 @@ document.getElementById("votedPicsBtn").addEventListener("click", function () {
             document.getElementById("voted-images-section").style.display = "block";
 
             const grid = document.getElementById("voted-images-grid");
-            grid.innerHTML = ""; // Clear previous images
+            grid.innerHTML = ""; 
 
             data.forEach(vote => {
                 const container = document.createElement("div"); // Container for image + vote info
@@ -22,7 +46,7 @@ document.getElementById("votedPicsBtn").addEventListener("click", function () {
 
                 // Create and append the vote info
                 const voteInfo = document.createElement("p");
-                voteInfo.textContent = vote.value === 1 ? "Upvoted" : "Downvoted"; // Display vote type
+                voteInfo.textContent = vote.value === 1 ? "😺 Upvoted" : "😿 Downvoted"; // Display vote type
                 voteInfo.className = vote.value === 1 ? "upvote" : "downvote"; // Optional for styling
                 container.appendChild(voteInfo);
 
@@ -32,9 +56,10 @@ document.getElementById("votedPicsBtn").addEventListener("click", function () {
         })
         .catch(error => console.error("Error fetching voted images:", error));
 });
-// Fetch and display voted images  ENDS //
 
-////////////////////// JS for BREEDS //////////////////////////////
+/////////////////// JS for VOTES  ENDS //////////////////////////////////
+
+////////////////////// JS for BREEDS STARTS //////////////////////////////
 
 document.addEventListener('DOMContentLoaded', function () {
     const elements = {
@@ -203,8 +228,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
 });
 
+////////////////////// JS for BREEDS ENDS //////////////////////////////
 
-/////////////////// JS for FAVS /////////////////
+/////////////////// JS for FAVS STARTS   //////////////////////////////
 
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -258,27 +284,29 @@ document.addEventListener('DOMContentLoaded', function () {
                 document.getElementById("breeds-section").style.display = "none";
                 document.getElementById("favs-section").style.display = "block"; 
 
-                grid.innerHTML = ""; // Clear previous images
+                grid.innerHTML = ""; 
 
                 data.forEach(fav => {
-                    const container = document.createElement("div"); // Container for image
+                    const container = document.createElement("div"); 
                     container.className = "favorite-item";
 
                     // Create and append the image
                     const img = document.createElement("img");
-                    img.src = fav.image.url; // Use the image URL from the API response
+                    img.src = fav.image.url; 
                     img.alt = "Favorite Cat";
-                    img.className = "favorite-image"; // Add class for styling if needed
+                    img.className = "favorite-image"; 
                     container.appendChild(img);
 
-                    // Optionally, add information about the favorite, e.g., date or ID
+                    
                     const info = document.createElement("p");
-                    info.textContent = `Added on: ${new Date(fav.created_at).toLocaleDateString()}`;
+                    info.textContent = `😻 Added: ${new Date(fav.created_at).toLocaleDateString()}`;
                     container.appendChild(info);
 
                     // Add the container to the grid
                     grid.appendChild(container);
                 });
+                // Scroll the container to the top after adding images
+                grid.scrollTop = 0;
             })
             .catch(error => console.error("Error fetching favorite images:", error));
     });
