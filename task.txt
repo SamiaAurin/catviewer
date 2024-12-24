@@ -9,6 +9,6 @@ Task Breakdown
 6. Write Unit tests for achieve 80% Code Coverage
 
 
-
-
+***************************************
+go test ./tests -v
 

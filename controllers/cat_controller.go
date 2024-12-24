@@ -290,7 +290,7 @@ type Breed struct {
 
 
 func (c *CatController) FetchBreeds() {
-    // Get API key from the configuration
+    
     apiKey, err := web.AppConfig.String("catapi_key")
     if err != nil || apiKey == "" {
         c.Data["json"] = map[string]string{"error": "API key not found"}
@@ -298,13 +298,11 @@ func (c *CatController) FetchBreeds() {
         return
     }
 
-    // Extract breed ID from query parameters
+    
     breedId := c.GetString("id")
     if breedId == "" {
-        // If no breed ID is provided, fetch all breeds
         fetchAllBreeds(apiKey, c)
     } else {
-        // If breed ID is provided, fetch specific breed details and images
         fetchBreedWithImages(breedId, apiKey, c)
     }
 }
@@ -523,11 +521,11 @@ func favoriteImageToAPI(imageID string, ch chan error) {
     }
 
     if resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusCreated {
-        // Status 200 or 201 means success
+       
         fmt.Printf("Image successfully favorited for image_id %s. Response: %s\n", imageID, string(body))
         ch <- nil // Indicate success
     } else {
-        // Handle unexpected status codes
+        
         ch <- fmt.Errorf("failed to favorite image_id %s. Status: %d, Response: %s", imageID, resp.StatusCode, string(body))
     }
 }
@@ -588,7 +586,7 @@ func (c *CatController) ShowFavoriteImages() {
         c.Data["json"] = res
         c.ServeJSON()
     case err := <-errors:
-        // Handle the error
+       
         c.Data["json"] = map[string]string{"error": err.Error()}
         c.ServeJSON()
     }
