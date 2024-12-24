@@ -455,3 +455,20 @@ i {
     transform: scale(1.05);
 }
 
+.delete-btn {
+    background-color: transparent;
+    border: none;
+    font-size: 1.2rem;
+    color: #d32f2f; /* Red color for the delete button */
+    cursor: pointer;
+    transition: transform 0.2s ease, color 0.3s ease;
+}
+
+.delete-btn:hover {
+    color: #f44336; /* Lighter red color on hover */
+    transform: scale(1.1); /* Slight scale on hover */
+}
+
+.delete-btn:focus {
+    outline: none;
+}

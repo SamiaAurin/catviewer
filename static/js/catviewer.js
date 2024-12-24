@@ -231,7 +231,7 @@ document.addEventListener('DOMContentLoaded', function () {
 ////////////////////// JS for BREEDS ENDS //////////////////////////////
 
 /////////////////// JS for FAVS STARTS   //////////////////////////////
-
+/*
 document.addEventListener('DOMContentLoaded', function () {
 
     // Fetch favorite images when the favorites tab is clicked
@@ -311,8 +311,116 @@ document.addEventListener('DOMContentLoaded', function () {
             .catch(error => console.error("Error fetching favorite images:", error));
     });
 });
+*/
 
+document.addEventListener('DOMContentLoaded', function () {
 
+    // Fetch favorite images when the favorites tab is clicked
+    document.getElementById("favs-tab").addEventListener("click", function () {
+        console.log("Favorites tab clicked!");
+        
+        // Add event listeners to toggle between grid and bar view
+        const gridView = document.querySelector(".grid-view");
+        const barView = document.querySelector(".bar-view");
+        const grid = document.getElementById("favorite-images-grid");
+
+        if (gridView && barView && grid) {
+            // Ensure grid view is applied by default when the Favorites tab is clicked
+            grid.classList.remove("bar-view");
+            grid.classList.add("grid-view"); // Default to grid view
+
+            // Set the grid-view button as active by default
+            gridView.classList.add("active");
+            barView.classList.remove("active");
+
+            gridView.addEventListener("click", function () {
+                grid.classList.remove("bar-view");
+                grid.classList.add("grid-view");
+
+                // Update active state on icons
+                gridView.classList.add("active");
+                barView.classList.remove("active");
+            });
+
+            barView.addEventListener("click", function () {
+                grid.classList.remove("grid-view");
+                grid.classList.add("bar-view");
+
+                // Update active state on icons
+                barView.classList.add("active");
+                gridView.classList.remove("active");
+            });
+        } else {
+            console.error("Grid or Bar view icons not found!");
+        }
+
+        fetch('/cat/fav_pics') // Fetch favorite images
+            .then(response => response.json())
+            .then(data => {
+                console.log("Fetched favorite images:", data);
+
+                // Hide other sections and show the favorites section
+                document.getElementById("voting-section").style.display = "none";
+                document.getElementById("voted-images-section").style.display = "none"; 
+                document.getElementById("breeds-section").style.display = "none";
+                document.getElementById("favs-section").style.display = "block"; 
+
+                grid.innerHTML = ""; 
+
+                data.forEach(fav => {
+                    const container = document.createElement("div"); 
+                    container.className = "favorite-item";
+                
+                    // Create and append the image
+                    const img = document.createElement("img");
+                    img.src = fav.image.url; 
+                    img.alt = "Favorite Cat";
+                    img.className = "favorite-image"; 
+                    container.appendChild(img);
+                
+                    // Create and append the information
+                    const info = document.createElement("p");
+                    info.textContent = `😻 Added: ${new Date(fav.created_at).toLocaleDateString()}`;
+                    container.appendChild(info);
+                
+                    // Create and append the delete button
+                    const deleteButton = document.createElement("button");
+                    deleteButton.className = "delete-btn"; // Add class for styling
+                
+                    // Use an icon for the delete button (you can use a font awesome icon, for example)
+                    deleteButton.innerHTML = "🗑️"; // You can use any icon here, like a trash bin
+                
+                    // Add event listener for delete functionality
+                    deleteButton.addEventListener("click", function () {
+                        // Optionally, remove the image from the DOM
+                        container.remove();
+                
+                        // You can also trigger a server-side request to delete the favorite image from the database
+                        fetch(`/cat/delete_fav/${fav.id}`, { method: "DELETE" })
+                            .then(response => {
+                                if (response.ok) {
+                                    console.log("Image deleted successfully!");
+                                } else {
+                                    console.log("Error deleting image.");
+                                }
+                            })
+                            .catch(error => {
+                                console.error("Error:", error);
+                            });
+                    });
+                
+                    container.appendChild(deleteButton); // Add the delete button to the container
+                
+                    // Add the container to the grid
+                    grid.appendChild(container);
+                });
+                
+                // Scroll the container to the top after adding images
+                grid.scrollTop = 0;
+            })
+            .catch(error => console.error("Error fetching favorite images:", error));
+    });
+});
 
 
 

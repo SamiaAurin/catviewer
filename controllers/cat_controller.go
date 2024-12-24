@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"time"
+    "log"
 	
 	
 
@@ -593,4 +594,86 @@ func (c *CatController) ShowFavoriteImages() {
     }
 }
 
+// DeleteFavoriteImage handles the deletion of a favorite image
+func (c *CatController) DeleteFavoriteImage() {
+	// Retrieve the API key from the app.conf file
+	apiKey, err := web.AppConfig.String("catapi_key")
+	if err != nil {
+		log.Printf("Error retrieving API key: %v\n", err)
+		c.Data["json"] = map[string]string{"message": "API key not found."}
+		c.ServeJSON()
+		return
+	}
+
+	favoriteId := c.Ctx.Input.Param(":id") // Get the favorite ID from the URL parameter
+
+	// Debug: Log the favorite ID received
+	log.Printf("Received request to delete favorite image with ID: %s\n", favoriteId)
+
+	// Create a channel to get the result of the deletion operation
+	resultChan := make(chan bool)
+
+	// Use a goroutine to handle the deletion in the background
+	go func() {
+		defer close(resultChan) // Close the channel once the goroutine is done
+
+		// Make the DELETE request to The Cat API
+		apiUrl := fmt.Sprintf("https://api.thecatapi.com/v1/favourites/%s", favoriteId)
+		req, err := http.NewRequest("DELETE", apiUrl, nil)
+		if err != nil {
+			log.Printf("Error creating request: %v\n", err)
+			resultChan <- false
+			return
+		}
+
+		// Log the API URL and method being used
+		log.Printf("Sending DELETE request to: %s\n", apiUrl)
+
+		// Set the necessary headers with the API key from the app.conf file
+		req.Header.Set("x-api-key", apiKey)
+
+		// Make the request
+		client := &http.Client{}
+		resp, err := client.Do(req)
+		if err != nil {
+			log.Printf("Error sending DELETE request: %v\n", err)
+			resultChan <- false
+			return
+		}
+		defer resp.Body.Close()
+
+		// Log the response status code
+		log.Printf("Received response with status code: %d\n", resp.StatusCode)
+
+		// Read the response body for debugging purposes
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Printf("Error reading response body: %v\n", err)
+			resultChan <- false
+			return
+		}
+		log.Printf("Response Body: %s\n", string(body))
+
+		// Check if the request was successful
+		if resp.StatusCode == 200 {
+			log.Printf("Favorite image with ID %s deleted successfully.\n", favoriteId)
+			resultChan <- true
+		} else {
+			log.Printf("Failed to delete favorite image with ID %s. Status code: %d\n", favoriteId, resp.StatusCode)
+			resultChan <- false
+		}
+	}()
+
+	// Wait for the result from the goroutine
+	success := <-resultChan
+
+	// Respond based on the result
+	if success {
+		c.Data["json"] = map[string]string{"message": "Favorite deleted successfully!"}
+	} else {
+		c.Data["json"] = map[string]string{"message": "Failed to delete favorite."}
+	}
+
+	c.ServeJSON()
+}
 ///////////////////////////////// FAVS ENDS ////////////////////////////////////

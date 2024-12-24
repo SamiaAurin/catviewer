@@ -21,7 +21,7 @@ func init() {
 	// Route to handle saving and showing favorites
     web.Router("/cat/favorite", &controllers.CatController{}, "post:FavoriteImage")
 	web.Router("/cat/fav_pics", &controllers.CatController{}, "get:ShowFavoriteImages")
-
-
+    // Route to handle deleting a favorite
+    web.Router("/cat/delete_fav/:id", &controllers.CatController{}, "delete:DeleteFavoriteImage")
 
 }
