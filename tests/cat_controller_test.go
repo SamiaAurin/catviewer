@@ -11,6 +11,7 @@ import (
 	"github.com/beego/beego/v2/server/web"
 	"github.com/beego/beego/v2/server/web/context"
 
+	
 )
 
 /////////////// TESTS FOR VOTES STARTS ///////////////////
@@ -97,9 +98,9 @@ func TestShowVotedImages(t *testing.T) {
 
 /////////////// TESTS FOR BREEDS STARTS ///////////////////
 func setupMockConfig() {
-    // Set a mock API key
     web.AppConfig.Set("catapi_key", "mock_api_key")
 }
+
 
 // Mock breed data
 var mockBreed = controllers.Breed{
@@ -263,6 +264,72 @@ func TestFetchBreedsError(t *testing.T) {
 
 /////////////// TESTS FOR FAVS STARTS /////////////////////
 
+// TestFavoriteImage tests the FavoriteImage function
+var fetchFavoriteImagesURL string
+
+// TestShowFavoriteImages tests the ShowFavoriteImages function
+func TestShowFavoriteImages(t *testing.T) {
+	// Mock response data
+	mockResponse := []map[string]interface{}{
+		{
+			"id": 1,
+			"image_id": "test_image_id",
+		},
+	}
+
+	jsonResponse, _ := json.Marshal(mockResponse)
+
+	// Create test server
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write(jsonResponse)
+	}))
+	defer ts.Close()
+
+	// Override API URL
+	oldURL := fetchFavoriteImagesURL
+	fetchFavoriteImagesURL = ts.URL
+	defer func() { fetchFavoriteImagesURL = oldURL }()
+
+	r, _ := http.NewRequest("GET", "/cat/favorites", nil)
+	w := httptest.NewRecorder()
+
+	ctx := context.NewContext()
+	ctx.Reset(w, r)
+
+	controller := &controllers.CatController{}
+	controller.Init(ctx, "CatController", "CatController", nil)
+
+	controller.ShowFavoriteImages()
+
+	// Check response status code
+	if w.Code != http.StatusOK {
+		t.Errorf("ShowFavoriteImages returned wrong status code: got %v want %v", w.Code, http.StatusOK)
+	}
+}
+
+// TestDeleteFavoriteImage tests the DeleteFavoriteImage function
+func TestDeleteFavoriteImage(t *testing.T) {
+	// Mock favorite ID
+	favoriteID := "1"
+
+	// Create a new request
+	r, _ := http.NewRequest("DELETE", "/cat/favorites/"+favoriteID, nil)
+	w := httptest.NewRecorder()
+
+	ctx := context.NewContext()
+	ctx.Reset(w, r)
+
+	controller := &controllers.CatController{}
+	controller.Init(ctx, "CatController", "CatController", nil)
+
+	controller.DeleteFavoriteImage()
+
+	// Check response status code
+	if w.Code != http.StatusOK {
+		t.Errorf("DeleteFavoriteImage returned wrong status code: got %v want %v", w.Code, http.StatusOK)
+	}
+}
 
 
 /////////////// TESTS FOR FAVS ENDS /////////////////////
