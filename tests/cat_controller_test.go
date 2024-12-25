@@ -10,6 +10,7 @@ import (
 	"catviewer/controllers"
 	"github.com/beego/beego/v2/server/web"
 	"github.com/beego/beego/v2/server/web/context"
+
 )
 
 /////////////// TESTS FOR VOTES STARTS ///////////////////
@@ -259,6 +260,12 @@ func TestFetchBreedsError(t *testing.T) {
 }
 */
 /////////////// TESTS FOR BREEDS ENDS /////////////////////
+
+/////////////// TESTS FOR FAVS STARTS /////////////////////
+
+
+
+/////////////// TESTS FOR FAVS ENDS /////////////////////
 
 func TestMain(m *testing.M) {
 	web.BConfig.RunMode = web.DEV

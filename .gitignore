@@ -1,7 +1,1 @@
-# Ignore Go mod and Go sum files
-go.mod
-go.sum
 
-# Ignore other unwanted files/folders (optional)
-.DS_Store  # macOS
-*.log  # Log files

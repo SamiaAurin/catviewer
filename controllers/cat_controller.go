@@ -445,6 +445,7 @@ func fetchBreedImages(breedId, apiKey string, imageChannel chan interface{}, err
 ///////////////////////////////// BREEDS ENDS /////////////////////////////////////
 
 ///////////////////////////////// FAVS STARTS ////////////////////////////////////
+
 // FavoriteImage handles the favoriting action for a cat image
 func (c *CatController) FavoriteImage() {
     // Get image ID from the form
