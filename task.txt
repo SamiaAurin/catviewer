@@ -11,4 +11,65 @@ Task Breakdown
 
 ***************************************
 go test ./tests -v
+go get .out
+******************************************
+func TestFetchBreedWithImages(t *testing.T) {
+    setupMockConfig() // Ensure mock configuration is set
 
+    ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        if r.URL.Path == "/v1/breeds/abys" {
+            json.NewEncoder(w).Encode(mockBreed)
+        } else if r.URL.Path == "/v1/images/search" {
+            mockImages := []struct {
+                URL string `json:"url"`
+            }{
+                {URL: "http://example.com/cat1.jpg"},
+                {URL: "http://example.com/cat2.jpg"},
+            }
+            json.NewEncoder(w).Encode(mockImages)
+        } else {
+            t.Errorf("Unexpected request to path: %s", r.URL.Path)
+        }
+    }))
+    defer ts.Close()
+
+    // Override API endpoints
+    oldBreedDetailsURL := fetchBreedDetailsURL
+    oldBreedImagesURL := fetchBreedImagesURL
+    fetchBreedDetailsURL = ts.URL
+    fetchBreedImagesURL = ts.URL
+    defer func() {
+        fetchBreedDetailsURL = oldBreedDetailsURL
+        fetchBreedImagesURL = oldBreedImagesURL
+    }()
+
+    r, _ := http.NewRequest("GET", "/cat/fetch_breeds?id=abys", nil)
+    w := httptest.NewRecorder()
+
+    ctx := context.NewContext()
+    ctx.Reset(w, r)
+
+    controller := &controllers.CatController{}
+    controller.Init(ctx, "CatController", "CatController", nil)
+    controller.Ctx.Input.SetParam("id", "abys")
+
+    controller.FetchBreeds()
+
+    // Check response
+    if w.Code != http.StatusOK {
+        t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
+    }
+
+    var response map[string]interface{}
+    err := json.Unmarshal(w.Body.Bytes(), &response)
+    if err != nil {
+        t.Errorf("Failed to unmarshal response: %v", err)
+    }
+
+    if response["BreedDetails"] == nil {
+        t.Error("Expected BreedDetails in response")
+    }
+    if response["BreedImages"] == nil {
+        t.Error("Expected BreedImages in response")
+    }
+}
