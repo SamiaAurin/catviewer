@@ -207,7 +207,6 @@ func CastVoteToAPI(imageID string, voteValue string) {
 	}
 }
 
-
 // ShowVotedImages handles fetching and displaying voted images.
 func (c *CatController) ShowVotedImages() {
 	apiKey, err := web.AppConfig.String("catapi_key")
