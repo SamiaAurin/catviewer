@@ -71,7 +71,7 @@ Before running the project, ensure you have the following installed on your mach
    - **Configuration**
       -Open the configuration file located at `conf/app.conf` and update the following:
 
-      ``bash
+      ```bash
       appname = catviewer
       httpport = 8080
       runmode = dev
@@ -123,7 +123,7 @@ bee run
 Open your browser and navigate to: http://localhost:8080/cat/vote
 
 
-## Unit Testing
+## Unit Tests
 This project includes unit tests to ensure code reliability.
 
 ### Run all tests:
