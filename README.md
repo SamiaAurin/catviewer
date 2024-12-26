@@ -59,11 +59,11 @@ Before running the project, ensure you have the following installed on your mach
      ```bash
       export PATH=$PATH:/home/<your_device_name (ex:w3e55)>/go/bin
      ```
-     
+
 ## Installation
 
 1. Clone this repository to your local machine: 
-   To get started, clone the repository into your Go workspace `(go/src)` to ensure the project is placed in the correct directory for your Go workspace. If your Go workspace does not contain a src folder, please create one.
+   To get started, clone the repository into your Go workspace `(go/src)` to ensure the project is placed in the correct directory for your Go workspace. If your Go workspace does not contain a `src` folder, please create one.
 
    ```bash
    git clone https://github.com/yourusername/catviewer.git
