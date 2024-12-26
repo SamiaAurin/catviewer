@@ -271,4 +271,3 @@ catviewer/controllers/cat_controller.go:669.13,671.3 1 0
 catviewer/controllers/cat_controller.go:671.8,673.3 1 1
 catviewer/controllers/cat_controller.go:675.2,675.15 1 1
 catviewer/controllers/default.go:11.32,15.2 3 0
-catviewer/routers/router.go:8.13,26.2 7 1

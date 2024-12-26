@@ -134,7 +134,7 @@ func (c *CatController) CastVote() {
 	}
 
 	// Call TheCatAPI to cast the vote
-	go castVoteToAPI(imageID, voteValue)
+	go CastVoteToAPI(imageID, voteValue)
 	// Return a JSON response
 	//c.Data["json"] = map[string]string{"image_id": imageID, "vote_value": voteValue}
 	//c.ServeJSON()
@@ -144,7 +144,7 @@ func (c *CatController) CastVote() {
 }
 
 // castVoteToAPI sends the vote to TheCatAPI
-func castVoteToAPI(imageID string, voteValue string) {
+func CastVoteToAPI(imageID string, voteValue string) {
 	apiKey, err := web.AppConfig.String("catapi_key")
 	if err != nil {
 		fmt.Println("Failed to read API key from config:", err)

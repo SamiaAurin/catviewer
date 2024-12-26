@@ -2,16 +2,32 @@
 
 ## Table of Contents
 1. [Introduction](#introduction)
-2. [Prerequisites](#prerequisites)
-3. [Installation](#installation)
-4. [Project Structure](#project-structure)
-5. [Features](#features)
+2. [Features](#features)
+3. [Prerequisites](#prerequisites) 
+4. [Installation](#installation)
+5. [Project Structure](#project-structure)
 6. [Running the Application](#running-the-application)
 7. [Unit Tests](#unit-tests) 
 
 
 ## Introduction
 The **Cat Viewer** is a web application built with **Beego** for the backend and Vanilla JavaScript for the frontend. The project replicates the functionality seen on [The Cat API](https://thecatapi.com), where users can view random cat images, save their favorites, and vote on images.
+
+
+## Features
+
+- **Like and Dislike Cat Pictures**:  
+  Users can like and dislike cat pictures, and the voted pics are displayed in the "Voted Pics" section.
+  
+- **Add and View Favorite Cat Pictures**:  
+  Users can add cat pictures to their favorites, and these are shown in the "Favs" section. The "Favs" button in the header section allows users to view all their favorite cat pics.
+
+- **Delete Favorite Pictures**:  
+  Users have the option to delete cat pictures from their favorites section.
+
+- **Search Cat Breeds**:  
+  The app allows users to search for different cat breeds in the "Breeds" section in header, providing information on various types of cats.
+
 
 ## Prerequisites
 Before running the project, ensure you have the following installed on your machine:
@@ -32,25 +48,36 @@ Before running the project, ensure you have the following installed on your mach
      go mod tidy
      ```
 
+
 ## Installation
 
-1. Clone this repository to your local machine:
+1. Clone this repository to your local machine: 
+   To get started, clone the repository into your Go workspace `(go/src)` to ensure the project is placed in the correct directory for your Go workspace.
+
    ```bash
    git clone https://github.com/yourusername/catviewer.git
    cd catviewer
    ```
+   
 2. Install Go dependencies:
+
    ```bash
    go mod tidy
-   ```
-3. Install Beego if not done already:
-   ```bash
-   go get github.com/beego/beego/v2
-   ```   
-4. Set up your The Cat API key:
+   ``` 
+3. Set up your The Cat API key:
+
    - You will need an API key from [The Cat API](https://thecatapi.com/).
    - Once you have the key, place it in your Beego config file (`app.conf`). 
+   - **Configuration**
+      -Open the configuration file located at `conf/app.conf` and update the following:
 
+      ``bash
+      appname = catviewer
+      httpport = 8080
+      runmode = dev
+      catapi_key = live_xDKhFremvCoTHT3aHP6IfaxZA5XOTjhdvunrnecnwHyXfy9mrU3b8Yeu4NTNfQ0i
+      catapi_url = https://api.thecatapi.com/v1
+      ```
 
 ## Project Structure
 The project has the following structure:
@@ -83,21 +110,32 @@ catviewer
 - config: Stores the Beego configuration files.
 - tests: Contains unit tests for the project.
 
-## Features
 
-- **Like and Dislike Cat Pics**:  
-  Users can like and dislike cat pictures, and the voted pics are displayed in the "Voted Pics" section.
-  
-- **Add and View Favorite Cat Pics**:  
-  Users can add cat pictures to their favorites, and these are shown in the "Favs" section. The "Favs" button in the header section allows users to view all their favorite cat pics.
+## Running the Application
 
-- **Delete Favorite Pics**:  
-  Users have the option to delete cat pictures from their favorites section.
+### Step 1: Start the Beego Server
+Run the following command to start the Beego application:
+```bash
+bee run
+```
 
-- **Search Cat Breeds**:  
-  The app allows users to search for different cat breeds in the "Breeds" section in header, providing information on various types of cats.
+### Step 2: Access the Application
+Open your browser and navigate to: http://localhost:8080/cat/vote
 
 
+## Unit Testing
+This project includes unit tests to ensure code reliability.
+
+### Run all tests:
+```bash
+go test -v ./tests/cat_controller_test.go
+```
+
+### Generate coverage report:
+```bash
+go test -coverprofile coverage.out ./...
+go tool cover -html coverage.out
+```
 
 
 

@@ -20,6 +20,11 @@ import (
 
 	"github.com/jarcoal/httpmock"
 	//"github.com/astaxie/beego"
+    //"github.com/beego/beego/v2/core/config"
+
+	//"log"
+	//"io"
+	//"os"
     
 	
 )
@@ -611,6 +616,7 @@ func TestFetchRandomImage_ErrorInJSONParsing(t *testing.T) {
 
 /////////////// TESTS FetchImage functions ENDS //////////////////////
 
+////////////////////////////////////////////////////////
 
 
 
