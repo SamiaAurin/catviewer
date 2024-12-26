@@ -35,7 +35,10 @@ Before running the project, ensure you have the following installed on your mach
 1. **Go (Golang)**:
    - Install Go from the official site: [Download Go](https://golang.org/dl/)
    - For detailed installation instructions, check out this [YouTube tutorial on installing Go](https://youtu.be/9IbfeyFlfeU?si=D6S6gQbI7rUxQfv8) for beginners.
-
+   - Verify installation:
+      ```bash
+       go version
+      ```
 2. **Beego Framework**:
    - To install Beego, run the following command:
      ```bash
@@ -43,7 +46,7 @@ Before running the project, ensure you have the following installed on your mach
      ```
 
 3. **Other Dependencies**:
-   - Make sure you have all Go dependencies set up in your Go project directory. You can use `go mod` to manage the dependencies:
+   - Make sure you have all Go dependencies set up in your Go project directory. You can use `go mod` to manage the dependencies after clone the repository:
      ```bash
      go mod tidy
      ```
@@ -52,7 +55,7 @@ Before running the project, ensure you have the following installed on your mach
 ## Installation
 
 1. Clone this repository to your local machine: 
-   To get started, clone the repository into your Go workspace `(go/src)` to ensure the project is placed in the correct directory for your Go workspace.
+   To get started, clone the repository into your Go workspace `(go/src)` to ensure the project is placed in the correct directory for your Go workspace. If your Go workspace does not contain a src folder, please create one.
 
    ```bash
    git clone https://github.com/yourusername/catviewer.git

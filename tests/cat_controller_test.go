@@ -6,25 +6,16 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+    "fmt"
+	"strings"
 
 	"catviewer/controllers"
+	
 	"github.com/beego/beego/v2/server/web"
 	"github.com/beego/beego/v2/server/web/context"
-
-	//"github.com/stretchr/testify/assert"
-	"fmt"
-	"strings"
-    //"io/ioutil"
 	"github.com/stretchr/testify/assert"
-	//"github.com/stretchr/testify/mock"
-
 	"github.com/jarcoal/httpmock"
-	//"github.com/astaxie/beego"
-    //"github.com/beego/beego/v2/core/config"
-
-	//"log"
-	//"io"
-	//"os"
+	
     
 	
 )
@@ -307,6 +298,85 @@ func TestFetchBreedWithImages(t *testing.T) {
     }
 }
 
+// Testing Breeds Details
+type Image struct {
+    URL string `json:"url"`
+}
+
+type BreedDetails struct {
+    ID          string `json:"id"`
+    Name        string `json:"name"`
+    Origin      string `json:"origin"`
+    Description string `json:"description"`
+    Image       Image  `json:"image"`
+    WikipediaURL string `json:"wikipedia_url"`
+}
+
+type FetchBreedResponse struct {
+    BreedDetails BreedDetails   `json:"BreedDetails"`
+    BreedImages  []Image        `json:"BreedImages"`
+}
+func TestFetchBreedDetails(t *testing.T) {
+    setupMockConfig() // Ensure mock configuration is set
+
+    ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        // Check if the request path and method are correct
+        if r.URL.Path != "/v1/breeds/abys" || r.Method != "GET" {
+            t.Errorf("Unexpected request: %s %s", r.Method, r.URL.Path)
+        }
+
+        // Check if the API key is set in the request header
+        if r.Header.Get("x-api-key") == "" {
+            t.Error("Expected API Key header to be set")
+        }
+
+        // Mock response
+        json.NewEncoder(w).Encode(mockBreed)
+    }))
+    defer ts.Close()
+
+    // Override API endpoint
+    oldURL := fetchBreedDetailsURL
+    fetchBreedDetailsURL = ts.URL + "/v1/breeds/abys"
+    defer func() { fetchBreedDetailsURL = oldURL }()
+
+    r, _ := http.NewRequest("GET", "/cat/fetch_breed?id=abys", nil)
+    w := httptest.NewRecorder()
+
+    ctx := context.NewContext()
+    ctx.Reset(w, r)
+
+    controller := &controllers.CatController{}
+    controller.Init(ctx, "CatController", "CatController", nil)
+    controller.Ctx.Input.SetParam("id", "abys")
+
+    controller.FetchBreeds()
+
+    // Check response
+    if w.Code != http.StatusOK {
+        t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
+    }
+
+    responseBody := w.Body.Bytes()
+    //fmt.Println("Response Body:", string(responseBody))
+
+    var response FetchBreedResponse
+    err := json.Unmarshal(responseBody, &response)
+    if err != nil {
+        t.Errorf("Failed to unmarshal response: %v", err)
+    } else {
+        fmt.Printf("Unmarshaled Response: %+v\n", response)
+    }
+
+    // Add assertions to check the response data
+    if response.BreedDetails.ID != mockBreed.ID {
+        t.Errorf("Expected breed ID %s, got %s", mockBreed.ID, response.BreedDetails.ID)
+    }
+    if response.BreedDetails.Name != mockBreed.Name {
+        t.Errorf("Expected breed name %s, got %s", mockBreed.Name, response.BreedDetails.Name)
+    }
+    // Add more assertions as needed
+}
 
 // TestFetchBreedsError tests error handling when API key is missing
 func TestFetchBreedsError(t *testing.T) {
@@ -616,11 +686,6 @@ func TestFetchRandomImage_ErrorInJSONParsing(t *testing.T) {
 
 /////////////// TESTS FetchImage functions ENDS //////////////////////
 
-////////////////////////////////////////////////////////
-
-
-
-//////////////////////////////////////////////////////////
 
 
 
