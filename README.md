@@ -51,6 +51,13 @@ Before running the project, ensure you have the following installed on your mach
      go mod tidy
      ```
 
+4. Setup path if you are using Linux: open terminal
+
+   ```bash
+   nano ~/.bashrc
+   ```  
+   Add this in last line, then press `ctrl+o` and Enter
+   export PATH=$PATH:/home/<your_device_name (ex:w3e55)>/go/bin
 
 ## Installation
 
