@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
     "log"
-	
+	"io"
 
 	"github.com/beego/beego/v2/server/web"
 )
@@ -21,7 +21,7 @@ type CatController struct {
 // ShowVotePage renders the initial voting page with a random cat image.
 func (c *CatController) ShowVotePage() {
 	// Fetch a random cat image using a Go channel
-	imageURL, imageID := fetchRandomImage()
+	imageURL, imageID := FetchRandomImage()
 
 	// Pass the image URL and ID to the template
 	c.Data["ImageURL"] = imageURL
@@ -30,7 +30,7 @@ func (c *CatController) ShowVotePage() {
 }
 
 // fetchRandomImage uses a Go channel to fetch a random image from TheCatAPI.
-func fetchRandomImage() (string, string) {
+func FetchRandomImage() (string, string) {
 	// Create a channel to communicate between the Go routine and the main thread
 	ch := make(chan struct {
 		url string
@@ -128,7 +128,7 @@ func (c *CatController) CastVote() {
 	imageID := c.GetString("image_id")
 	if imageID == "" {
 		c.Ctx.Output.SetStatus(http.StatusBadRequest)
-		c.Data["json"] = map[string]string{"error": "Missing image ID"}
+		c.Data["json"] = map[string]string{"error": "MissingimageID"}
 		c.ServeJSON()
 		return
 	}
@@ -446,10 +446,16 @@ func fetchBreedImages(breedId, apiKey string, imageChannel chan interface{}, err
 
 ///////////////////////////////// FAVS STARTS ////////////////////////////////////
 
-// FavoriteImage handles the favoriting action for a cat image
+var favEndpoint = "https://api.thecatapi.com/v1/favourites"
+
+func SetFavEndpoint(url string) {
+    favEndpoint = url
+}
+
 func (c *CatController) FavoriteImage() {
     // Get image ID from the form
     imageID := c.GetString("image_id")
+    
     if imageID == "" {
         c.Ctx.Output.SetStatus(http.StatusBadRequest)
         c.Data["json"] = map[string]string{"error": "Missing image ID"}
@@ -465,8 +471,8 @@ func (c *CatController) FavoriteImage() {
 
     // Wait for the result (blocking until the goroutine completes)
     err := <-ch
+    
     if err != nil {
-        // Handle the error if the API request failed
         c.Ctx.Output.SetStatus(http.StatusInternalServerError)
         c.Data["json"] = map[string]string{"error": err.Error()}
         c.ServeJSON()
@@ -477,7 +483,6 @@ func (c *CatController) FavoriteImage() {
     c.Redirect("/cat/vote", http.StatusFound)
 }
 
-// Fav pics fetch API
 func favoriteImageToAPI(imageID string, ch chan error) {
     apiKey, err := web.AppConfig.String("catapi_key")
     if err != nil {
@@ -485,7 +490,6 @@ func favoriteImageToAPI(imageID string, ch chan error) {
         return
     }
 
-    favEndpoint := "https://api.thecatapi.com/v1/favourites"
     favRequest := map[string]interface{}{
         "image_id": imageID,
     }
@@ -504,7 +508,7 @@ func favoriteImageToAPI(imageID string, ch chan error) {
 
     req.Header.Set("x-api-key", apiKey)
     req.Header.Set("Content-Type", "application/json")
-
+    
     client := &http.Client{}
     resp, err := client.Do(req)
     if err != nil {
@@ -513,19 +517,15 @@ func favoriteImageToAPI(imageID string, ch chan error) {
     }
     defer resp.Body.Close()
 
-    // Log response for debugging
-    body, err := ioutil.ReadAll(resp.Body)
+    body, err := io.ReadAll(resp.Body)
     if err != nil {
         ch <- fmt.Errorf("failed to read API response for image_id %s: %v", imageID, err)
         return
     }
 
     if resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusCreated {
-       
-        fmt.Printf("Image successfully favorited for image_id %s. Response: %s\n", imageID, string(body))
         ch <- nil // Indicate success
     } else {
-        
         ch <- fmt.Errorf("failed to favorite image_id %s. Status: %d, Response: %s", imageID, resp.StatusCode, string(body))
     }
 }

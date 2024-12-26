@@ -10,8 +10,17 @@ Task Breakdown
 
 
 ***************************************
+go install github.com/beego/bee/v2@latest
+
 go test ./tests -v
-go get .out
+go test -coverprofile coverage.out ./...
+go tool cover -html coverage.out
+
+// run the test files separately
+go test -v ./tests/cat_controller_test.go
+go test -v ./tests/routers_test.go
+
+
 ******************************************
 func TestFetchBreedWithImages(t *testing.T) {
     setupMockConfig() // Ensure mock configuration is set
@@ -157,4 +166,94 @@ func TestDeleteFavoriteImage_NotFound(t *testing.T) {
 	json.NewDecoder(rr.Body).Decode(&response)
 	assert.Equal(t, response["message"], "Failed to delete favorite.")
 }
+*******************************************************
+*******************************************************
+Add Favs Images: POST 
+*******************************************************
+*******************************************************
+///////////////////////
+/*
+// FavoriteImage handles the favoriting action for a cat image
+func (c *CatController) FavoriteImage() {
+    // Get image ID from the form
+    imageID := c.GetString("image_id")
+    if imageID == "" {
+        c.Ctx.Output.SetStatus(http.StatusBadRequest)
+        c.Data["json"] = map[string]string{"error": "Missing image ID"}
+        c.ServeJSON()
+        return
+    }
 
+    // Create a channel to receive the result of the API call
+    ch := make(chan error)
+
+    // Call the function to favorite the image in a goroutine
+    go favoriteImageToAPI(imageID, ch)
+
+    // Wait for the result (blocking until the goroutine completes)
+    err := <-ch
+    if err != nil {
+        // Handle the error if the API request failed
+        c.Ctx.Output.SetStatus(http.StatusInternalServerError)
+        c.Data["json"] = map[string]string{"error": err.Error()}
+        c.ServeJSON()
+        return
+    }
+
+    // Redirect to the same page after successful operation
+    c.Redirect("/cat/vote", http.StatusFound)
+}
+
+// Fav pics fetch API
+func favoriteImageToAPI(imageID string, ch chan error) {
+    apiKey, err := web.AppConfig.String("catapi_key")
+    if err != nil {
+        ch <- fmt.Errorf("failed to read API key from config: %v", err)
+        return
+    }
+
+    favEndpoint := "https://api.thecatapi.com/v1/favourites"
+    favRequest := map[string]interface{}{
+        "image_id": imageID,
+    }
+
+    reqBody, err := json.Marshal(favRequest)
+    if err != nil {
+        ch <- fmt.Errorf("failed to marshal favorite request: %v", err)
+        return
+    }
+
+    req, err := http.NewRequest("POST", favEndpoint, bytes.NewBuffer(reqBody))
+    if err != nil {
+        ch <- fmt.Errorf("failed to create request: %v", err)
+        return
+    }
+
+    req.Header.Set("x-api-key", apiKey)
+    req.Header.Set("Content-Type", "application/json")
+
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        ch <- fmt.Errorf("failed to send favorite request for image_id %s: %v", imageID, err)
+        return
+    }
+    defer resp.Body.Close()
+
+    // Log response for debugging
+    body, err := ioutil.ReadAll(resp.Body)
+    if err != nil {
+        ch <- fmt.Errorf("failed to read API response for image_id %s: %v", imageID, err)
+        return
+    }
+
+    if resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusCreated {
+       
+        fmt.Printf("Image successfully favorited for image_id %s. Response: %s\n", imageID, string(body))
+        ch <- nil // Indicate success
+    } else {
+        
+        ch <- fmt.Errorf("failed to favorite image_id %s. Status: %d, Response: %s", imageID, resp.StatusCode, string(body))
+    }
+}
+*/

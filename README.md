@@ -23,7 +23,7 @@ Before running the project, ensure you have the following installed on your mach
 2. **Beego Framework**:
    - To install Beego, run the following command:
      ```bash
-     go get github.com/beego/beego/v2
+     go install github.com/beego/bee/v2@latest
      ```
 
 3. **Other Dependencies**:

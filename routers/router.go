@@ -5,7 +5,7 @@ import (
 	"github.com/beego/beego/v2/server/web"
 )
 
-func init() {
+func Init() {
 
 	// Route to show the voting page
 	web.Router("/cat/vote", &controllers.CatController{}, "get:ShowVotePage")
