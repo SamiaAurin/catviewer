@@ -68,8 +68,7 @@ Before running the project, ensure you have the following installed on your mach
 
    - You will need an API key from [The Cat API](https://thecatapi.com/).
    - Once you have the key, place it in your Beego config file (`app.conf`). 
-   - **Configuration**
-      -Open the configuration file located at `conf/app.conf` and update the following:
+   - Open the configuration file located at `conf/app.conf` and update the following:
 
       ```bash
       appname = catviewer
